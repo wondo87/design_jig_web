@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>견적 문의 - 디자인 지그</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.5rem 3rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            text-decoration: none;
+        }
+        .nav-list {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+        .nav-link {
+            color: #1a1a1a;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            letter-spacing: 0.05em;
+        }
+        .nav-link:hover { color: #B4956F; }
+        .nav-link-cta { color: #B4956F; }
+        .nav-link.active { color: #B4956F; border-bottom: 2px solid #B4956F; padding-bottom: 4px; }
+        
+        .page-hero {
+            padding: 180px 3rem 60px;
+            background: linear-gradient(135deg, #f8f6f3 0%, #fff 100%);
+            text-align: center;
+        }
+        .page-hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1a1a1a;
+        }
+        .page-hero p {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .quote-section {
+            padding: 80px 3rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .quote-form {
+            background: #fff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+        
+        .form-group label .required {
+            color: #B4956F;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #B4956F;
+        }
+        
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: #B4956F;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn-submit:hover {
+            background: #9a7d5a;
+        }
+        
+        .contact-info {
+            margin-top: 40px;
+            padding: 30px;
+            background: #f8f6f3;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .contact-info h3 {
+            margin-bottom: 16px;
+            color: #1a1a1a;
+        }
+        
+        .contact-info p {
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .contact-info a {
+            color: #B4956F;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .footer {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 60px 3rem;
+            text-align: center;
+        }
+        .footer p { color: #888; font-size: 0.9rem; }
+        .footer a { color: #B4956F; text-decoration: none; }
+        
+        @media (max-width: 768px) {
+            .header { padding: 1rem 1.5rem; }
+            .nav-list { display: none; }
+            .page-hero { padding: 140px 1.5rem 40px; }
+            .page-hero h1 { font-size: 2rem; }
+            .quote-section { padding: 40px 1.5rem; }
+            .quote-form { padding: 24px; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">디자인 지그</a>
+            <nav>
+                <ul class="nav-list">
+                    <li><a href="columns.html" class="nav-link">COLUMNS</a></li>
+                    <li><a href="portfolio.html" class="nav-link">PORTFOLIO</a></li>
+                    <li><a href="quote.html" class="nav-link nav-link-cta active">ASK A QUOTE</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="page-hero">
+            <h1>견적 문의</h1>
+            <p>프로젝트에 대해 알려주세요. 빠르게 연락드리겠습니다.</p>
+        </section>
+        
+        <section class="quote-section">
+            <form class="quote-form" onsubmit="handleSubmit(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>이름 <span class="required">*</span></label>
+                        <input type="text" name="name" required placeholder="홍길동">
+                    </div>
+                    <div class="form-group">
+                        <label>연락처 <span class="required">*</span></label>
+                        <input type="tel" name="phone" required placeholder="010-0000-0000">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>이메일</label>
+                    <input type="email" name="email" placeholder="example@email.com">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>공사 유형 <span class="required">*</span></label>
+                        <select name="type" required>
+                            <option value="">선택해주세요</option>
+                            <option value="full">전체 인테리어</option>
+                            <option value="partial">부분 인테리어</option>
+                            <option value="remodel">리모델링</option>
+                            <option value="other">기타</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>예상 평수</label>
+                        <input type="text" name="size" placeholder="예: 32평">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>공사 위치</label>
+                    <input type="text" name="location" placeholder="예: 용인시 수지구 ○○아파트">
+                </div>
+                
+                <div class="form-group">
+                    <label>예상 예산</label>
+                    <select name="budget">
+                        <option value="">선택해주세요</option>
+                        <option value="~3000">3,000만원 이하</option>
+                        <option value="3000~5000">3,000 ~ 5,000만원</option>
+                        <option value="5000~7000">5,000 ~ 7,000만원</option>
+                        <option value="7000~1억">7,000만원 ~ 1억</option>
+                        <option value="1억~">1억 이상</option>
+                        <option value="미정">미정 / 상담 후 결정</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>문의 내용 <span class="required">*</span></label>
+                    <textarea name="message" required placeholder="공사 내용, 희망 일정, 궁금한 점 등을 자유롭게 작성해주세요."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-submit">견적 문의하기</button>
+            </form>
+            
+            <div class="contact-info">
+                <h3>📞 빠른 상담</h3>
+                <p>전화 상담을 원하시면 아래로 연락주세요</p>
+                <p><a href="tel:031-000-0000">031-000-0000</a></p>
+                <p style="margin-top: 16px; font-size: 0.9rem; color: #888;">
+                    상담 가능 시간: 평일 09:00 - 18:00
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>© 2024 디자인 지그. All rights reserved.</p>
+        <p style="margin-top: 10px;">경기도 용인시 수지구 보정동 | <a href="tel:031-000-0000">031-000-0000</a></p>
+    </footer>
+    
+    <script>
+        function handleSubmit(e) {
+            e.preventDefault();
+            alert('문의가 접수되었습니다.\n빠른 시일 내에 연락드리겠습니다.\n\n※ 실제 운영 시 이메일/카카오톡 연동이 필요합니다.');
+        }
+    </script>
+</body>
+</html>

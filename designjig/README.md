@@ -10,157 +10,137 @@
 
 ```
 designjig/
-├── index.html         # 고객용 홈페이지 (랜딩 페이지)
-├── adminwonpro.html   # 내부 관리 시스템
-└── README.md          # 프로젝트 설명
+├── index.html           # 메인 홈페이지
+├── columns.html         # 칼럼 (Notion/JSON 연동)
+├── portfolio.html       # 포트폴리오 (Cloudinary 연동)
+├── quote.html           # 견적 문의
+├── adminwonpro.html     # 관리자 시스템 (Google Sheets 연동)
+├── config.js            # API 설정 파일
+├── columns-data.json    # 칼럼 데이터
+├── portfolio-data.json  # 포트폴리오 데이터
+├── SETUP_GUIDE.md       # 연동 설정 가이드
+└── README.md            # 프로젝트 설명
 ```
 
 ---
 
-## 🏠 index.html - 고객용 홈페이지
+## 🔗 URL 구조
 
-고객에게 보여지는 메인 웹사이트입니다.
-
-### 주요 구성
-- **히어로 슬라이더**: 3개 슬라이드 자동 전환
-- **서비스 소개**: 주거공간 전문, 투명한 견적, 현장 경험 강조
-- **컬럼 섹션**: 인테리어 인사이트 콘텐츠
-- **푸터**: 연락처 및 SNS 링크
-
-### 연결 페이지 (추후 개발)
-- `columns.html` - 인테리어 칼럼/블로그
-- `portfolio.html` - 시공 사례 포트폴리오
-- `quote.html` - 견적 문의 폼
+| 페이지 | 주소 | 설명 |
+|:---|:---|:---|
+| 홈 | `designjig.com` | 메인 랜딩 페이지 |
+| 칼럼 | `designjig.com/columns` | 인테리어 정보 글 |
+| 포트폴리오 | `designjig.com/portfolio` | 시공 사례 |
+| 견적 문의 | `designjig.com/quote` | 견적 요청 폼 |
+| 관리자 | `designjig.com/adminwonpro` | 내부 관리 시스템 |
 
 ---
 
-## ⚙️ adminwonpro.html - 통합 관리 시스템
+## 🔐 관리자 접근
 
-내부 업무용 관리 시스템입니다.
-
-### 주요 기능
-
-#### 1. 대시보드
-- 고객 현황 차트
-- 진행중/완료 프로젝트 통계
-- 월별 매출 현황
-
-#### 2. 고객 관리
-- 고객 정보 등록/수정/삭제
-- 상담 상태 관리 (상담중 → 계약 → 공사중 → 완료)
-- 고객별 메모 기능
-
-#### 3. 견적 시스템
-- 17개 공종별 품목 관리
-- 원가/판매가 이중 관리
-- 마진율 자동 계산
-- PDF 견적서 생성
-
-#### 4. 원가 관리
-- 공종별 품목 데이터베이스
-- 단가 일괄 수정
-- 메모(주의사항) 관리
-
-### 공종 목록 (17개)
-| 번호 | 공종명 | 비고 |
-|:---:|:---|:---|
-| 01 | 가설공사 | 보양, 동의서, 행위허가 |
-| 02 | 철거공사 | 주방, 가구, 바닥, 벽체, 욕실 |
-| 03 | 설비/방수공사 | 배관, 방수, 누수탐지 |
-| 04 | 확장/단열공사 | 발코니 확장, 외벽 단열 |
-| 05 | 창호공사 | KCC, LX지인, 방충망 |
-| 06 | 전기/조명공사 | 배선, 스위치콘센트, 조명 |
-| 07 | 에어컨공사 | LG, 삼성 시스템에어컨 |
-| 08 | 목공/도어공사 | 가벽, 천장, 도어, 현관문 |
-| 09 | 필름공사 | 창호, 도어, 가구 필름 |
-| 10 | 타일공사 | 현관, 발코니, 거실 타일 |
-| 11 | 욕실공사 | 타일, 도기, 수전, 욕실장 |
-| 12 | 도장공사 | 페인트, 탄성코트 |
-| 13 | 도배공사 | 합지, 실크, 프리미엄 |
-| 14 | 바닥재공사 | 마루, 데코타일, 장판 |
-| 15 | 가구공사 | 주방가구, 붙박이장 |
-| 16 | 마감공사 | 실리콘, 빨래건조대, 청소 |
-| 17 | 기타공사 | 추가 공사 항목 |
-
-### 관리자 접근
-- **비밀번호**: 관리자가 설정
-- 열람 모드: 누구나 조회 가능
-- 편집 모드: 비밀번호 입력 필요
-
-### 데이터 저장
-- **localStorage** 사용 (브라우저 내 저장)
-- JSON 내보내기/불러오기 지원
-- 브라우저 변경 시 데이터 이동 필요
+- **URL**: `designjig.com/adminwonpro`
+- **비밀번호**: 설정됨 (관리자만 알고 있음)
+- 메인 페이지에서 링크 숨김 처리됨
 
 ---
 
-## 🚀 사용 방법
+## 🗄️ 데이터 관리 구조
 
-### 로컬 실행
+```
+┌─────────────────────────────────────────────────────┐
+│                    외부 서비스                        │
+├─────────────────┬───────────────────────────────────┤
+│ 칼럼 이미지      │ Cloudinary                        │
+│ 포트폴리오 이미지 │ Cloudinary                        │
+│ 고객/견적 데이터  │ Google Sheets (선택)              │
+├─────────────────┴───────────────────────────────────┤
+│                    로컬 JSON 파일                    │
+├─────────────────┬───────────────────────────────────┤
+│ 칼럼 글          │ columns-data.json                 │
+│ 포트폴리오 정보   │ portfolio-data.json               │
+└─────────────────┴───────────────────────────────────┘
+```
+
+### 데이터 안전성
+- **코드 수정 시**: 외부 서비스 데이터 100% 안전
+- **사이트 삭제 시**: Cloudinary/Sheets 데이터 그대로 유지
+- **서버 이전 시**: JSON 파일만 복사하면 복원 완료
+
+---
+
+## 📷 Cloudinary 이미지 URL 형식
+
+```
+기본: https://res.cloudinary.com/CLOUD_NAME/image/upload/파일명.jpg
+최적화: https://res.cloudinary.com/CLOUD_NAME/image/upload/w_800,q_auto/파일명.jpg
+```
+
+---
+
+## 📝 칼럼 추가 방법
+
+`columns-data.json` 편집:
+
+```json
+{
+    "id": 새번호,
+    "title": "제목",
+    "date": "2024-12-25",
+    "thumbnail": "Cloudinary_이미지_URL",
+    "summary": "요약",
+    "tag": "카테고리",
+    "content": "<p>HTML 본문</p>"
+}
+```
+
+---
+
+## 🖼️ 포트폴리오 추가 방법
+
+`portfolio-data.json` 편집:
+
+```json
+{
+    "id": 새번호,
+    "title": "프로젝트명",
+    "category": "apartment",
+    "location": "위치",
+    "size": "평수",
+    "duration": "공사기간",
+    "year": "2024",
+    "description": "설명",
+    "thumbnail": "Cloudinary_썸네일_URL",
+    "images": ["이미지1_URL", "이미지2_URL"]
+}
+```
+
+---
+
+## 🚀 배포
+
+### GitHub Pages
 ```bash
-# 프로젝트 폴더에서
-# 방법 1: 파일 직접 열기
-open index.html
-
-# 방법 2: 로컬 서버 실행 (권장)
-python3 -m http.server 8000
-# 또는
-npx serve .
+git add .
+git commit -m "Update"
+git push
 ```
 
-### GitHub Pages 배포
-1. 저장소 Settings → Pages
-2. Source: Deploy from a branch
-3. Branch: main / root
-4. 접속: `https://username.github.io/designjig/`
-
----
-
-## 📝 수정 가이드
-
-### 연락처 변경
-`index.html` 하단 footer 영역:
-```html
-<p>연락처: <a href="tel:031-000-0000">031-000-0000</a></p>
-<p>이메일: <a href="mailto:info@designjig.com">info@designjig.com</a></p>
-```
-
-### 원가 데이터 수정
-`adminwonpro.html` 내 `defaultCostData` 객체:
-```javascript
-const defaultCostData = {
-    '01': [ // 가설공사
-        { div: '보양', name: '승강기 올보양', spec: '', unit: '식', qty: '1', price: '160000' },
-        // ...
-    ],
-    // ...
-};
-```
-
-### 관리자 비밀번호 변경
-`adminwonpro.html` 에서 로그인 후 설정에서 변경 가능
+### Netlify
+1. GitHub 연동 또는
+2. 폴더 드래그 앤 드롭
 
 ---
 
 ## 🎨 브랜드 컬러
 
-| 용도 | 색상 코드 |
+| 용도 | 색상 |
 |:---|:---|
 | Primary (골드) | `#B4956F` |
-| Text (블랙) | `#1a1a1a` |
+| Text | `#1a1a1a` |
 | Background | `#f5f5f7` |
-| Accent (블루) | `#0071e3` |
 
 ---
 
 ## 📄 라이선스
 
 © 2024 디자인지그. All rights reserved.
-
----
-
-## 📞 문의
-
-- **주소**: 경기도 용인시 수지구 보정동
-- **전화**: 031-000-0000
-- **이메일**: info@designjig.com

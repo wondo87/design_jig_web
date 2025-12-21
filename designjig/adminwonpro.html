@@ -2980,21 +2980,19 @@
         let currentStatusFilter = 'all';
         let isAdminMode = false;
         
-        // 기본 비밀번호 (처음 설정 안 했을 때)
-        const DEFAULT_PASSWORD = '1234';
+        // 기본 비밀번호
+        const DEFAULT_PASSWORD = 'Dufan170531!@';
+        
+        // 초기화 시 기본 비밀번호 설정
+        if (!localStorage.getItem('dz_admin_password')) {
+            localStorage.setItem('dz_admin_password', DEFAULT_PASSWORD);
+        }
         
         // 관리자 모달 표시
         function showAdminModal() {
-            // 비밀번호가 설정되어 있지 않으면 설정 모달 표시
-            const savedPassword = localStorage.getItem('dz_admin_password');
-            if (!savedPassword) {
-                document.getElementById('passwordModal').classList.add('show');
-                document.getElementById('newPassword').focus();
-            } else {
-                document.getElementById('adminModal').classList.add('show');
-                document.getElementById('adminPassword').value = '';
-                document.getElementById('adminPassword').focus();
-            }
+            document.getElementById('adminModal').classList.add('show');
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminPassword').focus();
         }
         
         function closeAdminModal() {
