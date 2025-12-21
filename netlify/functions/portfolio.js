@@ -9,14 +9,15 @@ export async function handler() {
           "Notion-Version": "2022-06-28",
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          sorts: [{ property: "order", direction: "ascending" }]
-        })
+        body: JSON.stringify({}) // 오류 방지를 위해 정렬 조건을 비워둡니다.
       }
     );
+
     const data = await response.json();
+
     return {
       statusCode: 200,
+      headers: { "Content-Type": "application/json" }, // 브라우저가 JSON임을 알게 합니다.
       body: JSON.stringify(data.results)
     };
   } catch (error) {
