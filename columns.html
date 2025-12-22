@@ -1,20 +1,29 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>COLUMNS - 디자인 지그</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap"
+        rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Inter', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
             color: #1a1a1a;
             line-height: 1.6;
             background: #fff;
         }
+
         .header {
             position: fixed;
             top: 0;
@@ -26,6 +35,7 @@
             backdrop-filter: blur(10px);
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
         }
+
         .header-container {
             display: flex;
             justify-content: space-between;
@@ -33,17 +43,20 @@
             max-width: 1400px;
             margin: 0 auto;
         }
+
         .logo {
             font-size: 1.5rem;
             font-weight: 700;
             color: #1a1a1a;
             text-decoration: none;
         }
+
         .nav-list {
             display: flex;
             gap: 2.5rem;
             list-style: none;
         }
+
         .nav-link {
             color: #1a1a1a;
             text-decoration: none;
@@ -52,70 +65,84 @@
             transition: color 0.3s ease;
             letter-spacing: 0.05em;
         }
-        .nav-link:hover { color: #B4956F; }
-        .nav-link-cta { color: #B4956F; }
-        .nav-link.active { color: #B4956F; border-bottom: 2px solid #B4956F; padding-bottom: 4px; }
-        
+
+        .nav-link:hover {
+            color: #B4956F;
+        }
+
+        .nav-link-cta {
+            color: #B4956F;
+        }
+
+        .nav-link.active {
+            color: #B4956F;
+            border-bottom: 2px solid #B4956F;
+            padding-bottom: 4px;
+        }
+
         .page-hero {
             padding: 160px 3rem 60px;
             background: linear-gradient(135deg, #f8f6f3 0%, #fff 100%);
             text-align: center;
         }
+
         .page-hero h1 {
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 1rem;
             color: #1a1a1a;
         }
+
         .page-hero p {
             font-size: 1.1rem;
             color: #666;
             max-width: 600px;
             margin: 0 auto;
         }
-        
+
         .columns-section {
             max-width: 1200px;
             margin: 0 auto;
             padding: 60px 3rem;
         }
-        
+
         .columns-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 30px;
         }
-        
+
         .column-card {
             background: #fff;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
         }
+
         .column-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
         }
-        
+
         .column-thumbnail {
             width: 100%;
             height: 200px;
             object-fit: cover;
             background: #f0f0f0;
         }
-        
+
         .column-content {
             padding: 24px;
         }
-        
+
         .column-date {
             font-size: 0.85rem;
             color: #888;
             margin-bottom: 8px;
         }
-        
+
         .column-title {
             font-size: 1.25rem;
             font-weight: 600;
@@ -123,13 +150,13 @@
             color: #1a1a1a;
             line-height: 1.4;
         }
-        
+
         .column-summary {
             font-size: 0.95rem;
             color: #666;
             line-height: 1.6;
         }
-        
+
         .column-tag {
             display: inline-block;
             padding: 4px 10px;
@@ -139,12 +166,13 @@
             color: #666;
             margin-top: 12px;
         }
-        
+
         .loading {
             text-align: center;
             padding: 60px;
             color: #888;
         }
+
         .loading-spinner {
             width: 40px;
             height: 40px;
@@ -154,10 +182,13 @@
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
         }
+
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
-        
+
         .modal-overlay {
             display: none;
             position: fixed;
@@ -165,12 +196,15 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             z-index: 2000;
             overflow-y: auto;
         }
-        .modal-overlay.show { display: block; }
-        
+
+        .modal-overlay.show {
+            display: block;
+        }
+
         .modal-content {
             max-width: 800px;
             margin: 40px auto;
@@ -178,77 +212,203 @@
             border-radius: 16px;
             overflow: hidden;
         }
-        
+
         .modal-header {
             position: relative;
         }
+
         .modal-header img {
             width: 100%;
             height: 300px;
             object-fit: cover;
         }
+
         .modal-close {
             position: absolute;
             top: 20px;
             right: 20px;
             width: 40px;
             height: 40px;
-            background: rgba(255,255,255,0.9);
+            background: rgba(255, 255, 255, 0.9);
             border: none;
             border-radius: 50%;
             font-size: 1.5rem;
             cursor: pointer;
         }
-        
+
         .modal-body {
             padding: 40px;
         }
+
         .modal-body h1 {
             font-size: 2rem;
             margin-bottom: 16px;
             line-height: 1.4;
         }
+
         .modal-body .meta {
             color: #888;
             margin-bottom: 30px;
             padding-bottom: 20px;
             border-bottom: 1px solid #eee;
         }
+
         .modal-body .content {
             font-size: 1.05rem;
             line-height: 1.9;
             color: #333;
         }
-        .modal-body .content p { margin-bottom: 1.5em; }
-        .modal-body .content h2 { margin: 2em 0 1em; font-size: 1.4rem; }
-        .modal-body .content h3 { margin: 1.5em 0 0.8em; font-size: 1.2rem; }
-        .modal-body .content img { max-width: 100%; border-radius: 8px; margin: 1.5em 0; }
-        .modal-body .content pre { background: #f5f5f5; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 1.5em 0; }
-        .modal-body .content code { background: #f5f5f5; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
-        .modal-body .content pre code { background: none; padding: 0; }
-        
+
+        .modal-body .content p {
+            margin-bottom: 1.5em;
+        }
+
+        .modal-body .content h2 {
+            margin: 2em 0 1em;
+            font-size: 1.4rem;
+        }
+
+        .modal-body .content h3 {
+            margin: 1.5em 0 0.8em;
+            font-size: 1.2rem;
+        }
+
+        .modal-body .content img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 1.5em 0;
+        }
+
+        .modal-body .content pre {
+            background: #f5f5f5;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5em 0;
+        }
+
+        .modal-body .content code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .modal-body .content pre code {
+            background: none;
+            padding: 0;
+        }
+
+        /* 푸터 */
         .footer {
-            background: #1a1a1a;
-            color: #fff;
-            padding: 60px 3rem;
+            background: #f8f8f8;
+            color: #333;
+            padding: 30px 2rem;
             text-align: center;
         }
-        .footer p { color: #888; font-size: 0.9rem; }
-        .footer a { color: #B4956F; text-decoration: none; }
-        
+
+        .footer-brand {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+            color: #1a1a1a;
+        }
+
+        .footer-tagline {
+            font-size: 0.7rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .footer-info {
+            margin-bottom: 1rem;
+        }
+
+        .footer-info p {
+            color: #666;
+            font-size: 0.7rem;
+            margin: 0.2rem 0;
+        }
+
+        .footer-info a {
+            color: #666;
+            text-decoration: none;
+        }
+
+        .footer-info a:hover {
+            color: #B4956F;
+        }
+
+        .footer-sns {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .footer-sns a {
+            color: #666;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .footer-sns a:hover {
+            color: #B4956F;
+            transform: translateY(-2px);
+        }
+
+        .footer-sns svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .footer-copyright {
+            color: #999;
+            font-size: 0.65rem;
+            margin-top: 1rem;
+            border-top: 1px solid #eee;
+            padding-top: 1rem;
+        }
+
         @media (max-width: 768px) {
-            .header { padding: 1rem 1.5rem; }
-            .nav-list { display: none; }
-            .page-hero { padding: 120px 1.5rem 40px; }
-            .page-hero h1 { font-size: 1.8rem; }
-            .columns-section { padding: 40px 1.5rem; }
-            .columns-grid { grid-template-columns: 1fr; }
-            .modal-content { margin: 20px; }
-            .modal-body { padding: 24px; }
-            .modal-body h1 { font-size: 1.5rem; }
+            .header {
+                padding: 1rem 1.5rem;
+            }
+
+            .nav-list {
+                display: none;
+            }
+
+            .page-hero {
+                padding: 120px 1.5rem 40px;
+            }
+
+            .page-hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .columns-section {
+                padding: 40px 1.5rem;
+            }
+
+            .columns-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                margin: 20px;
+            }
+
+            .modal-body {
+                padding: 24px;
+            }
+
+            .modal-body h1 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
+
 <body>
     <header class="header">
         <div class="header-container">
@@ -268,7 +428,7 @@
             <h1>COLUMNS</h1>
             <p>인테리어에 대한 인사이트와 유용한 정보를 공유합니다</p>
         </section>
-        
+
         <section class="columns-section">
             <div id="columnsContainer" class="columns-grid">
                 <div class="loading">
@@ -278,7 +438,7 @@
             </div>
         </section>
     </main>
-    
+
     <div class="modal-overlay" id="columnModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -294,10 +454,37 @@
     </div>
 
     <footer class="footer">
-        <p>© 2024 디자인 지그. All rights reserved.</p>
-        <p style="margin-top: 10px;">경기도 용인시 수지구 보정동 | <a href="tel:031-000-0000">031-000-0000</a></p>
+        <h2 class="footer-brand">디자인 지그</h2>
+        <p class="footer-tagline">깔끔하고 시대를 초월한 인테리어 경험을 만들어갑니다.</p>
+        <div class="footer-info">
+            <p>경기도 용인시 수지구 보정동</p>
+            <p>연락처: <a href="tel:031-000-0000">031-000-0000</a></p>
+            <p>이메일: <a href="mailto:info@designjig.com">info@designjig.com</a></p>
+        </div>
+        <div class="footer-sns">
+            <a href="#" title="네이버 블로그" aria-label="네이버 블로그">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z" />
+                </svg>
+            </a>
+            <a href="#" title="인스타그램" aria-label="인스타그램">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+            </a>
+            <a href="#" title="유튜브" aria-label="유튜브">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                </svg>
+            </a>
+        </div>
+        <p class="footer-copyright">© 2024 디자인 지그. All rights reserved.</p>
     </footer>
-    
+
     <script src="config.js"></script>
     <script>
         // =============================================
@@ -305,10 +492,10 @@
         // columns-data.json 파일로 관리
         // =============================================
         let COLUMNS_DATA = [];
-        
+
         // 페이지 로드
         document.addEventListener('DOMContentLoaded', loadColumns);
-        
+
         // 칼럼 로드
         async function loadColumns() {
             try {
@@ -321,15 +508,15 @@
             } catch (e) {
                 console.log('columns-data.json 없음, 샘플 데이터 사용');
             }
-            
+
             // 데이터가 없으면 샘플 표시
             if (COLUMNS_DATA.length === 0) {
                 COLUMNS_DATA = getSampleData();
             }
-            
+
             displayColumns(COLUMNS_DATA);
         }
-        
+
         // 샘플 데이터
         function getSampleData() {
             return [
@@ -362,16 +549,16 @@
                 }
             ];
         }
-        
+
         // 칼럼 표시
         function displayColumns(columns) {
             const container = document.getElementById('columnsContainer');
-            
+
             if (columns.length === 0) {
                 container.innerHTML = '<p style="text-align:center;color:#888;padding:60px;">준비된 칼럼이 없습니다.</p>';
                 return;
             }
-            
+
             container.innerHTML = columns.map(col => `
                 <article class="column-card" onclick="openColumn(${col.id})">
                     <img class="column-thumbnail" src="${col.thumbnail}" alt="${col.title}" loading="lazy">
@@ -384,16 +571,16 @@
                 </article>
             `).join('');
         }
-        
+
         function formatDate(dateStr) {
             const date = new Date(dateStr);
             return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
         }
-        
+
         function openColumn(id) {
             const column = COLUMNS_DATA.find(c => c.id === id);
             if (!column) return;
-            
+
             document.getElementById('modalImage').src = column.thumbnail;
             document.getElementById('modalTitle').textContent = column.title;
             document.getElementById('modalMeta').textContent = formatDate(column.date) + ' · ' + (column.tag || '인테리어');
@@ -401,19 +588,20 @@
             document.getElementById('columnModal').classList.add('show');
             document.body.style.overflow = 'hidden';
         }
-        
+
         function closeModal() {
             document.getElementById('columnModal').classList.remove('show');
             document.body.style.overflow = '';
         }
-        
-        document.getElementById('columnModal').addEventListener('click', function(e) {
+
+        document.getElementById('columnModal').addEventListener('click', function (e) {
             if (e.target === this) closeModal();
         });
-        
-        document.addEventListener('keydown', function(e) {
+
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') closeModal();
         });
     </script>
 </body>
+
 </html>

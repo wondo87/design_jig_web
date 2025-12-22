@@ -1,19 +1,28 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>견적 문의 - 디자인 지그</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap"
+        rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Inter', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
             color: #1a1a1a;
             line-height: 1.6;
         }
+
         .header {
             position: fixed;
             top: 0;
@@ -25,6 +34,7 @@
             backdrop-filter: blur(10px);
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
         }
+
         .header-container {
             display: flex;
             justify-content: space-between;
@@ -32,17 +42,20 @@
             max-width: 1400px;
             margin: 0 auto;
         }
+
         .logo {
             font-size: 1.5rem;
             font-weight: 700;
             color: #1a1a1a;
             text-decoration: none;
         }
+
         .nav-list {
             display: flex;
             gap: 2.5rem;
             list-style: none;
         }
+
         .nav-link {
             color: #1a1a1a;
             text-decoration: none;
@@ -51,56 +64,69 @@
             transition: color 0.3s ease;
             letter-spacing: 0.05em;
         }
-        .nav-link:hover { color: #B4956F; }
-        .nav-link-cta { color: #B4956F; }
-        .nav-link.active { color: #B4956F; border-bottom: 2px solid #B4956F; padding-bottom: 4px; }
-        
+
+        .nav-link:hover {
+            color: #B4956F;
+        }
+
+        .nav-link-cta {
+            color: #B4956F;
+        }
+
+        .nav-link.active {
+            color: #B4956F;
+            border-bottom: 2px solid #B4956F;
+            padding-bottom: 4px;
+        }
+
         .page-hero {
             padding: 180px 3rem 60px;
             background: linear-gradient(135deg, #f8f6f3 0%, #fff 100%);
             text-align: center;
         }
+
         .page-hero h1 {
             font-size: 3rem;
             font-weight: 700;
             margin-bottom: 1rem;
             color: #1a1a1a;
         }
+
         .page-hero p {
             font-size: 1.1rem;
             color: #666;
             max-width: 600px;
             margin: 0 auto;
         }
-        
+
         .quote-section {
             padding: 80px 3rem;
             max-width: 800px;
             margin: 0 auto;
         }
-        
+
         .quote-form {
             background: #fff;
             padding: 40px;
             border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
-        
+
         .form-group {
             margin-bottom: 24px;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
             color: #1a1a1a;
         }
-        
+
         .form-group label .required {
             color: #B4956F;
         }
-        
+
         .form-group input,
         .form-group select,
         .form-group textarea {
@@ -112,25 +138,25 @@
             font-family: inherit;
             transition: border-color 0.3s;
         }
-        
+
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
             border-color: #B4956F;
         }
-        
+
         .form-group textarea {
             min-height: 150px;
             resize: vertical;
         }
-        
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
-        
+
         .btn-submit {
             width: 100%;
             padding: 16px;
@@ -143,11 +169,11 @@
             cursor: pointer;
             transition: background 0.3s;
         }
-        
+
         .btn-submit:hover {
             background: #9a7d5a;
         }
-        
+
         .contact-info {
             margin-top: 40px;
             padding: 30px;
@@ -155,43 +181,125 @@
             border-radius: 12px;
             text-align: center;
         }
-        
+
         .contact-info h3 {
             margin-bottom: 16px;
             color: #1a1a1a;
         }
-        
+
         .contact-info p {
             color: #666;
             margin-bottom: 8px;
         }
-        
+
         .contact-info a {
             color: #B4956F;
             text-decoration: none;
             font-weight: 500;
         }
-        
+
+        /* 푸터 */
         .footer {
-            background: #1a1a1a;
-            color: #fff;
-            padding: 60px 3rem;
+            background: #f8f8f8;
+            color: #333;
+            padding: 30px 2rem;
             text-align: center;
         }
-        .footer p { color: #888; font-size: 0.9rem; }
-        .footer a { color: #B4956F; text-decoration: none; }
-        
+
+        .footer-brand {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+            color: #1a1a1a;
+        }
+
+        .footer-tagline {
+            font-size: 0.7rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .footer-info {
+            margin-bottom: 1rem;
+        }
+
+        .footer-info p {
+            color: #666;
+            font-size: 0.7rem;
+            margin: 0.2rem 0;
+        }
+
+        .footer-info a {
+            color: #666;
+            text-decoration: none;
+        }
+
+        .footer-info a:hover {
+            color: #B4956F;
+        }
+
+        .footer-sns {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .footer-sns a {
+            color: #666;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .footer-sns a:hover {
+            color: #B4956F;
+            transform: translateY(-2px);
+        }
+
+        .footer-sns svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .footer-copyright {
+            color: #999;
+            font-size: 0.65rem;
+            margin-top: 1rem;
+            border-top: 1px solid #eee;
+            padding-top: 1rem;
+        }
+
         @media (max-width: 768px) {
-            .header { padding: 1rem 1.5rem; }
-            .nav-list { display: none; }
-            .page-hero { padding: 140px 1.5rem 40px; }
-            .page-hero h1 { font-size: 2rem; }
-            .quote-section { padding: 40px 1.5rem; }
-            .quote-form { padding: 24px; }
-            .form-row { grid-template-columns: 1fr; }
+            .header {
+                padding: 1rem 1.5rem;
+            }
+
+            .nav-list {
+                display: none;
+            }
+
+            .page-hero {
+                padding: 140px 1.5rem 40px;
+            }
+
+            .page-hero h1 {
+                font-size: 2rem;
+            }
+
+            .quote-section {
+                padding: 40px 1.5rem;
+            }
+
+            .quote-form {
+                padding: 24px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
+
 <body>
     <header class="header">
         <div class="header-container">
@@ -211,7 +319,7 @@
             <h1>견적 문의</h1>
             <p>프로젝트에 대해 알려주세요. 빠르게 연락드리겠습니다.</p>
         </section>
-        
+
         <section class="quote-section">
             <form class="quote-form" onsubmit="handleSubmit(event)">
                 <div class="form-row">
@@ -224,12 +332,12 @@
                         <input type="tel" name="phone" required placeholder="010-0000-0000">
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label>이메일</label>
                     <input type="email" name="email" placeholder="example@email.com">
                 </div>
-                
+
                 <div class="form-row">
                     <div class="form-group">
                         <label>공사 유형 <span class="required">*</span></label>
@@ -246,12 +354,12 @@
                         <input type="text" name="size" placeholder="예: 32평">
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label>공사 위치</label>
                     <input type="text" name="location" placeholder="예: 용인시 수지구 ○○아파트">
                 </div>
-                
+
                 <div class="form-group">
                     <label>예상 예산</label>
                     <select name="budget">
@@ -264,15 +372,15 @@
                         <option value="미정">미정 / 상담 후 결정</option>
                     </select>
                 </div>
-                
+
                 <div class="form-group">
                     <label>문의 내용 <span class="required">*</span></label>
                     <textarea name="message" required placeholder="공사 내용, 희망 일정, 궁금한 점 등을 자유롭게 작성해주세요."></textarea>
                 </div>
-                
+
                 <button type="submit" class="btn-submit">견적 문의하기</button>
             </form>
-            
+
             <div class="contact-info">
                 <h3>📞 빠른 상담</h3>
                 <p>전화 상담을 원하시면 아래로 연락주세요</p>
@@ -285,10 +393,37 @@
     </main>
 
     <footer class="footer">
-        <p>© 2024 디자인 지그. All rights reserved.</p>
-        <p style="margin-top: 10px;">경기도 용인시 수지구 보정동 | <a href="tel:031-000-0000">031-000-0000</a></p>
+        <h2 class="footer-brand">디자인 지그</h2>
+        <p class="footer-tagline">깔끔하고 시대를 초월한 인테리어 경험을 만들어갑니다.</p>
+        <div class="footer-info">
+            <p>경기도 용인시 수지구 보정동</p>
+            <p>연락처: <a href="tel:031-000-0000">031-000-0000</a></p>
+            <p>이메일: <a href="mailto:info@designjig.com">info@designjig.com</a></p>
+        </div>
+        <div class="footer-sns">
+            <a href="#" title="네이버 블로그" aria-label="네이버 블로그">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z" />
+                </svg>
+            </a>
+            <a href="#" title="인스타그램" aria-label="인스타그램">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+            </a>
+            <a href="#" title="유튜브" aria-label="유튜브">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                </svg>
+            </a>
+        </div>
+        <p class="footer-copyright">© 2024 디자인 지그. All rights reserved.</p>
     </footer>
-    
+
     <script>
         function handleSubmit(e) {
             e.preventDefault();
@@ -296,4 +431,5 @@
         }
     </script>
 </body>
+
 </html>
