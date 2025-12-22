@@ -244,6 +244,61 @@
             background: #9a7d5a;
         }
 
+        /* 개인정보 동의 체크박스 */
+        .privacy-consent {
+            margin-top: 24px;
+            margin-bottom: 24px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            cursor: pointer;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            margin-top: 2px;
+            accent-color: #B4956F;
+            cursor: pointer;
+        }
+
+        .privacy-text {
+            flex: 1;
+        }
+
+        .privacy-toggle {
+            background: none;
+            border: none;
+            color: #B4956F;
+            cursor: pointer;
+            font-size: 0.85rem;
+            text-decoration: underline;
+            margin-left: 8px;
+        }
+
+        .privacy-toggle:hover {
+            color: #9a7d5a;
+        }
+
+        .privacy-detail {
+            margin-top: 12px;
+            padding: 16px;
+            background: #f8f6f3;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .privacy-detail p {
+            margin-bottom: 4px;
+        }
+
         .contact-info {
             margin-top: 40px;
             padding: 30px;
@@ -460,6 +515,23 @@
                     <textarea name="message" required placeholder="공사 내용, 희망 일정, 궁금한 점 등을 자유롭게 작성해주세요."></textarea>
                 </div>
 
+                <div class="form-group privacy-consent">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="privacy" id="privacyCheck" required>
+                        <span class="checkmark"></span>
+                        <span class="privacy-text">
+                            <strong>[필수]</strong> 개인정보 수집 및 이용에 동의합니다.
+                            <button type="button" class="privacy-toggle" onclick="togglePrivacyDetail()">자세히 보기</button>
+                        </span>
+                    </label>
+                    <div class="privacy-detail" id="privacyDetail" style="display: none;">
+                        <p><strong>수집 항목:</strong> 이름, 연락처, 이메일, 공사 관련 정보</p>
+                        <p><strong>수집 목적:</strong> 견적 상담 및 문의 응대</p>
+                        <p><strong>보유 기간:</strong> 상담 완료 후 3년간 보관 (관련 법령에 따름)</p>
+                        <p>※ 동의를 거부할 수 있으나, 거부 시 견적 문의가 불가합니다.</p>
+                    </div>
+                </div>
+
                 <button type="submit" class="btn-submit">견적 문의하기</button>
             </form>
 
@@ -467,8 +539,10 @@
                 <h3>📞 빠른 상담</h3>
                 <p>전화 상담을 원하시면 아래로 연락주세요</p>
                 <p><a href="tel:031-000-0000">031-000-0000</a></p>
-                <p style="margin-top: 16px; font-size: 0.9rem; color: #888;">
-                    상담 가능 시간: 평일 09:00 - 18:00
+                <p style="margin-top: 16px; font-size: 0.9rem; color: #666;">
+                    <strong>상담 가능 시간</strong><br>
+                    평일 10:00 ~ 16:00<br>
+                    <span style="color: #999;">주말, 공휴일 휴무</span>
                 </p>
             </div>
         </section>
@@ -508,7 +582,7 @@
 
     <script>
         // [중요] 여기에 구글 앱스 스크립트 배포 후 생성된 URL을 넣어주세요!
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxHUVm_L6Ju5ogls-SXV1Dr5NgN5MMbdmjNcknS5fHhX7lcW6-hfwIN-lxWaE2VceEXoQ/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyP1i5-VbO7QlXTX14J5Qnk3hpbX-EmN-9e7Q8HGH3fenUpjQBQxv3zCXJG1V0QXKTP/exec';
 
         function handleSubmit(e) {
             e.preventDefault();
@@ -590,6 +664,16 @@
                     e.target.value = value.slice(0, 3) + '-' + value.slice(3, 7) + '-' + value.slice(7);
                 }
             });
+        }
+
+        // 개인정보 상세보기 토글
+        function togglePrivacyDetail() {
+            const detail = document.getElementById('privacyDetail');
+            if (detail.style.display === 'none') {
+                detail.style.display = 'block';
+            } else {
+                detail.style.display = 'none';
+            }
         }
     </script>
 </body>
