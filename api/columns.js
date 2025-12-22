@@ -12,19 +12,10 @@ export default async function handler(req, res) {
         });
     }
 
-    const databaseId = process.env.NOTION_COLUMNS_ID;
+    // 환경변수 문제로 인해 임시로 ID 하드코딩
+    const databaseId = 'd116b5df7b380dcb0ebc5e97f6f9332';
 
-    if (!databaseId) {
-        console.error('Environment Check Failed: NOTION_COLUMNS_ID is ' + (typeof process.env.NOTION_COLUMNS_ID));
-        return res.status(500).json({
-            error: '환경변수(NOTION_COLUMNS_ID)가 없음. Vercel에서 변수 설정 후 반드시 [Redeploy]를 해야 적용됩니다.',
-            debug_info: {
-                has_key: !!process.env.NOTION_API_KEY,
-                has_db_id: !!process.env.NOTION_COLUMNS_ID,
-                env_keys: Object.keys(process.env).filter(k => k.startsWith('NOTION'))
-            }
-        });
-    }
+    // if (!databaseId) { ... } 체크 제거
 
     try {
         const response = await notion.databases.query({
