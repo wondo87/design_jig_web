@@ -748,6 +748,8 @@
             document.getElementById('lightbox').classList.add('show');
             document.body.style.overflow = 'hidden';
             startAutoSlide();
+            // 브라우저 히스토리에 추가 (뒤로가기 버튼 활성화)
+            history.pushState({ lightbox: true }, '', '#view');
         }
 
         function updateLightbox() {
@@ -785,7 +787,20 @@
             if (slideTimer) clearInterval(slideTimer);
             document.getElementById('lightbox').classList.remove('show');
             document.body.style.overflow = '';
+            // URL에서 #view 제거
+            if (location.hash === '#view') {
+                history.back();
+            }
         }
+
+        // 브라우저 뒤로가기 버튼으로 라이트박스 닫기
+        window.addEventListener('popstate', function (e) {
+            if (document.getElementById('lightbox').classList.contains('show')) {
+                if (slideTimer) clearInterval(slideTimer);
+                document.getElementById('lightbox').classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        });
 
         // ESC 키, 방향키로 제어
         document.addEventListener('keydown', function (e) {
