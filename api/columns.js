@@ -15,9 +15,14 @@ export default async function handler(req, res) {
     const databaseId = process.env.NOTION_COLUMNS_ID;
 
     if (!databaseId) {
+        console.error('Environment Check Failed: NOTION_COLUMNS_ID is ' + (typeof process.env.NOTION_COLUMNS_ID));
         return res.status(500).json({
-            error: '환경변수가 설정되지 않았습니다.',
-            missing: { NOTION_COLUMNS_ID: true }
+            error: '환경변수(NOTION_COLUMNS_ID)가 없음. Vercel에서 변수 설정 후 반드시 [Redeploy]를 해야 적용됩니다.',
+            debug_info: {
+                has_key: !!process.env.NOTION_API_KEY,
+                has_db_id: !!process.env.NOTION_COLUMNS_ID,
+                env_keys: Object.keys(process.env).filter(k => k.startsWith('NOTION'))
+            }
         });
     }
 
