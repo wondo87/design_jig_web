@@ -324,31 +324,31 @@
         .footer {
             background: #f8f8f8;
             color: #333;
-            padding: 60px 3rem;
+            padding: 40px 3rem;
             text-align: center;
         }
 
         .footer-brand {
-            font-size: 1.8rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.3rem;
             color: #1a1a1a;
         }
 
         .footer-tagline {
-            font-size: 1rem;
+            font-size: 0.85rem;
             color: #666;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .footer-info {
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .footer-info p {
             color: #666;
-            font-size: 0.95rem;
-            margin: 0.5rem 0;
+            font-size: 0.8rem;
+            margin: 0.3rem 0;
         }
 
         .footer-info a {
@@ -362,14 +362,14 @@
 
         .footer-sns {
             display: flex;
-            gap: 1.5rem;
+            gap: 1rem;
             justify-content: center;
-            margin: 2rem 0;
+            margin: 1.5rem 0;
         }
 
         .footer-sns a {
             color: #666;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             transition: color 0.3s, transform 0.3s;
         }
 
@@ -379,16 +379,16 @@
         }
 
         .footer-sns svg {
-            width: 28px;
-            height: 28px;
+            width: 22px;
+            height: 22px;
         }
 
         .footer-copyright {
             color: #999;
-            font-size: 0.85rem;
-            margin-top: 2rem;
+            font-size: 0.75rem;
+            margin-top: 1.5rem;
             border-top: 1px solid #eee;
-            padding-top: 2rem;
+            padding-top: 1.5rem;
         }
 
         @media (max-width: 1024px) {
@@ -605,17 +605,25 @@
                 return;
             }
 
-            grid.innerHTML = PORTFOLIO_DATA.map((p, i) => {
-                const imgUrl = p.properties.URL?.files?.[0]?.external?.url ||
-                    p.properties.URL?.files?.[0]?.file?.url || "";
-                const title = p.properties.이름?.title?.[0]?.plain_text || "Project";
-                return `
-                    <article class="portfolio-card" onclick="openLightbox(${i})">
+            grid.innerHTML = PORTFOLIO_DATA
+                .filter(p => {
+                    // 이미지가 없는 항목 필터링 (design_jig_web_conn 같은 테스트 항목 제외)
+                    const hasImage = p.properties.URL?.files?.length > 0;
+                    return hasImage;
+                })
+                .map((p, i) => {
+                    const imgUrl = p.properties.URL?.files?.[0]?.external?.url ||
+                        p.properties.URL?.files?.[0]?.file?.url || "";
+                    const title = p.properties.이름?.title?.[0]?.plain_text || "Project";
+                    // 원본 데이터에서의 인덱스를 찾아 openLightbox에 전달
+                    const originalIndex = PORTFOLIO_DATA.indexOf(p);
+                    return `
+                    <article class="portfolio-card" onclick="openLightbox(${originalIndex})">
                         <img src="${imgUrl}" alt="${title}" onerror="this.src='https://via.placeholder.com/600x600?text=Design+Jig'">
                         <h3>${title}</h3>
                     </article>
                 `;
-            }).join('');
+                }).join('');
         }
 
         function openLightbox(i) {
