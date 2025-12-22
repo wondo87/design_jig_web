@@ -2588,6 +2588,24 @@
         </div>
     </div>
 
+    <!-- 휴지통 모달 -->
+    <div class="admin-modal" id="trashModal">
+        <div class="admin-modal-content"
+            style="max-width:800px; width:90%; max-height:80vh; overflow:hidden; display:flex; flex-direction:column;">
+            <h3>🗑️ 휴지통</h3>
+            <p>삭제된 고객 데이터입니다. <span style="color:#ff3b30;">30일 후 자동으로 영구 삭제됩니다.</span></p>
+            <div id="trashList"
+                style="flex:1; overflow-y:auto; margin:16px 0; border:1px solid #e8e8ed; border-radius:8px;">
+                <div style="padding:40px; text-align:center; color:#86868b;">
+                    휴지통이 비어있습니다
+                </div>
+            </div>
+            <div class="admin-modal-btns">
+                <button class="cancel-btn" onclick="closeTrashModal()">닫기</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 메인 레이아웃 -->
     <div class="main-layout">
         <!-- 사이드바: 고객 목록 -->
@@ -2595,6 +2613,7 @@
             <div class="sidebar-header">
                 <h3>고객 목록</h3>
                 <div style="display:flex; gap:4px;">
+                    <button class="btn btn-secondary btn-sm" onclick="openTrashModal()" title="휴지통">🗑️</button>
                     <button class="btn btn-secondary btn-sm" onclick="openQuoteImportModal()" title="견적문의 불러오기">📥
                         문의</button>
                     <button class="btn btn-primary btn-sm" onclick="newCustomer()">+ 신규</button>
@@ -3884,10 +3903,29 @@
         };
 
         let customers = JSON.parse(localStorage.getItem('dz_customers') || '[]');
+        let trash = JSON.parse(localStorage.getItem('dz_trash') || '[]'); // 휴지통
         let currentCustomerId = null;
         let currentData = {};
         let currentStatusFilter = 'all';
         let isAdminMode = false;
+
+        // 30일 지난 휴지통 항목 자동 삭제
+        function cleanOldTrash() {
+            const now = new Date();
+            const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
+            const oldCount = trash.length;
+            trash = trash.filter(item => {
+                const deletedDate = new Date(item.deletedAt);
+                return deletedDate > thirtyDaysAgo;
+            });
+            if (oldCount !== trash.length) {
+                localStorage.setItem('dz_trash', JSON.stringify(trash));
+                console.log('휴지통 자동 정리:', oldCount - trash.length, '건 영구삭제');
+            }
+        }
+
+        // 페이지 로드 시 휴지통 정리
+        cleanOldTrash();
 
         // Google Sheets 고객관리 API URL
         const CUSTOMER_API_URL = 'https://script.google.com/macros/s/AKfycbx-QJ2Jl1q-SWNl84v3oaQAh0urb72HJjR_EelKDT0UaDtCAOmvZ3UF9OT8HXhbs2CXyQ/exec';
@@ -4357,8 +4395,28 @@
             }
         }
 
+        // 삭제 시 비밀번호 확인 후 휴지통으로 이동
         async function deleteCurrentCustomer() {
-            if (!currentCustomerId || !confirm('이 고객을 삭제하시겠습니까?')) return;
+            if (!currentCustomerId) return;
+
+            // 비밀번호 확인
+            const password = prompt('삭제하려면 관리자 비밀번호를 입력하세요:');
+            const savedPassword = localStorage.getItem('dz_admin_password_new') || DEFAULT_PASSWORD;
+            if (password !== savedPassword) {
+                showToast('비밀번호가 틀렸습니다', 'error');
+                return;
+            }
+
+            if (!confirm('이 고객을 휴지통으로 이동하시겠습니까?\n(30일 후 자동 삭제됩니다)')) return;
+
+            // 휴지통으로 이동
+            const customerToDelete = customers.find(c => c.customerId === currentCustomerId);
+            if (customerToDelete) {
+                customerToDelete.deletedAt = new Date().toISOString();
+                trash.push(customerToDelete);
+                localStorage.setItem('dz_trash', JSON.stringify(trash));
+            }
+
             customers = customers.filter(c => c.customerId !== currentCustomerId);
             localStorage.setItem('dz_customers', JSON.stringify(customers));
 
@@ -4378,7 +4436,95 @@
             document.getElementById('emptyState').style.display = 'block';
             document.getElementById('customerView').style.display = 'none';
             updateCustomerList();
-            showToast('고객이 삭제되었습니다', 'success');
+            showToast('휴지통으로 이동되었습니다 (30일 후 자동 삭제)', 'success');
+        }
+
+        // 휴지통에서 복원
+        async function restoreFromTrash(customerId) {
+            const itemIndex = trash.findIndex(c => c.customerId === customerId);
+            if (itemIndex === -1) return;
+
+            const item = trash[itemIndex];
+            delete item.deletedAt; // 삭제일 제거
+            customers.push(item);
+            trash.splice(itemIndex, 1);
+
+            localStorage.setItem('dz_customers', JSON.stringify(customers));
+            localStorage.setItem('dz_trash', JSON.stringify(trash));
+
+            // Google Sheets 동기화
+            try {
+                await fetch(CUSTOMER_API_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    body: JSON.stringify({ customers: customers })
+                });
+            } catch (error) {
+                console.error('Google Sheets 동기화 실패:', error);
+            }
+
+            updateCustomerList();
+            updateTrashList();
+            showToast('복원되었습니다', 'success');
+        }
+
+        // 휴지통에서 영구 삭제
+        function permanentDeleteFromTrash(customerId) {
+            const password = prompt('영구 삭제하려면 관리자 비밀번호를 입력하세요:');
+            const savedPassword = localStorage.getItem('dz_admin_password_new') || DEFAULT_PASSWORD;
+            if (password !== savedPassword) {
+                showToast('비밀번호가 틀렸습니다', 'error');
+                return;
+            }
+
+            if (!confirm('정말 영구 삭제하시겠습니까?\n복구할 수 없습니다!')) return;
+
+            trash = trash.filter(c => c.customerId !== customerId);
+            localStorage.setItem('dz_trash', JSON.stringify(trash));
+            updateTrashList();
+            showToast('영구 삭제되었습니다', 'success');
+        }
+
+        // 휴지통 목록 업데이트
+        function updateTrashList() {
+            const container = document.getElementById('trashList');
+            if (!container) return;
+
+            if (trash.length === 0) {
+                container.innerHTML = '<div style="padding:40px; text-align:center; color:#86868b;">휴지통이 비어있습니다</div>';
+                return;
+            }
+
+            let html = '<table style="width:100%; border-collapse:collapse;">';
+            html += '<thead><tr style="background:#f5f5f7;"><th style="padding:12px; text-align:left;">고객명</th><th style="padding:12px;">삭제일</th><th style="padding:12px;">남은 기간</th><th style="padding:12px;">작업</th></tr></thead><tbody>';
+
+            trash.forEach(item => {
+                const deletedDate = new Date(item.deletedAt);
+                const daysLeft = Math.max(0, 30 - Math.floor((new Date() - deletedDate) / (1000 * 60 * 60 * 24)));
+
+                html += `<tr style="border-bottom:1px solid #e8e8ed;">
+                    <td style="padding:12px;">${item.clientName || item.customerId}</td>
+                    <td style="padding:12px; text-align:center;">${deletedDate.toLocaleDateString()}</td>
+                    <td style="padding:12px; text-align:center; color:${daysLeft <= 7 ? '#ff3b30' : '#86868b'};">${daysLeft}일</td>
+                    <td style="padding:12px; text-align:center;">
+                        <button onclick="restoreFromTrash('${item.customerId}')" style="padding:6px 12px; margin-right:4px; background:#34c759; color:#fff; border:none; border-radius:6px; cursor:pointer;">복원</button>
+                        <button onclick="permanentDeleteFromTrash('${item.customerId}')" style="padding:6px 12px; background:#ff3b30; color:#fff; border:none; border-radius:6px; cursor:pointer;">영구삭제</button>
+                    </td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // 휴지통 모달 열기/닫기
+        function openTrashModal() {
+            document.getElementById('trashModal').style.display = 'flex';
+            updateTrashList();
+        }
+
+        function closeTrashModal() {
+            document.getElementById('trashModal').style.display = 'none';
         }
 
         function updateCustomerList() {
