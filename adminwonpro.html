@@ -4356,6 +4356,23 @@
             createCoverTable();
             initYearFilter();
             updateCustomerList();
+
+            // 브라우저 히스토리 초기 상태 설정 (고객 목록 뷰)
+            history.replaceState({ view: 'list' }, '', location.href);
+
+            // 브라우저 뒤로가기 버튼 핸들링
+            window.addEventListener('popstate', function (event) {
+                if (event.state && event.state.view === 'list') {
+                    // 고객 목록으로 돌아가기
+                    showCustomerList();
+                } else if (event.state && event.state.view === 'customer' && event.state.customerId) {
+                    // 특정 고객 상세보기로 이동 (히스토리 추가 없이)
+                    selectCustomerWithoutHistory(event.state.customerId);
+                } else {
+                    // 기본: 고객 목록으로
+                    showCustomerList();
+                }
+            });
         });
 
         // 토스트 알림
@@ -4496,6 +4513,9 @@
             const seq = String(Math.floor(Math.random() * 900) + 100);
             currentCustomerId = `${yy}${mm}${dd}-${seq}`;
 
+            // 브라우저 히스토리에 상태 추가
+            history.pushState({ view: 'customer', customerId: currentCustomerId }, '', location.href);
+
             // 공사유형 매핑
             const typeMap = {
                 'full': '전체 인테리어',
@@ -4561,6 +4581,10 @@
             const dd = String(now.getDate()).padStart(2, '0');
             const seq = String(Math.floor(Math.random() * 900) + 100);
             currentCustomerId = `${yy}${mm}${dd}-${seq}`;
+
+            // 브라우저 히스토리에 상태 추가
+            history.pushState({ view: 'customer', customerId: currentCustomerId }, '', location.href);
+
             currentData = {
                 customerId: currentCustomerId,
                 status: 'consulting',
@@ -4590,9 +4614,56 @@
             syncAllFields();
         }
 
+        // 고객 목록 화면으로 돌아가기 (뒤로가기 시 사용)
+        function showCustomerList() {
+            currentCustomerId = null;
+            currentData = {};
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('customerView').style.display = 'none';
+            updateCustomerList();
+        }
+
+        // 히스토리 추가 없이 고객 선택 (popstate 이벤트용)
+        function selectCustomerWithoutHistory(customerId) {
+            const customer = customers.find(c => c.customerId === customerId);
+            if (!customer) {
+                showCustomerList();
+                return;
+            }
+            currentCustomerId = customerId;
+            currentData = { ...customer };
+            document.querySelectorAll('.customer-field').forEach(f => {
+                let val = currentData[f.dataset.field] || '';
+                if (f.type === 'date' && val.includes('.')) {
+                    val = val.replace(/\./g, '-');
+                }
+                f.value = val;
+            });
+            document.getElementById('customerStatus').value = currentData.status || 'consulting';
+            const asDisplay = document.getElementById('asEndDateDisplay');
+            if (currentData.status === 'as_done' && currentData.asEndDate) {
+                asDisplay.textContent = `A/S ~${currentData.asEndDate}`;
+                asDisplay.style.display = 'block';
+            } else {
+                asDisplay.style.display = 'none';
+            }
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('customerView').style.display = 'block';
+            document.getElementById('headerCustomerName').textContent = currentData.clientName || '고객명 없음';
+            document.getElementById('headerCustomerId').textContent = currentCustomerId;
+            loadCostData();
+            loadEstimateData();
+            updateCustomerList();
+            syncAllFields();
+        }
+
         function selectCustomer(customerId) {
             const customer = customers.find(c => c.customerId === customerId);
             if (!customer) return;
+
+            // 브라우저 히스토리에 상태 추가
+            history.pushState({ view: 'customer', customerId: customerId }, '', location.href);
+
             currentCustomerId = customerId;
             currentData = { ...customer };
             document.querySelectorAll('.customer-field').forEach(f => {
