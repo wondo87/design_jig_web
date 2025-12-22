@@ -2933,8 +2933,8 @@
                                     </div>
                                     <div class="info-item">
                                         <label>이사예정일</label>
-                                        <input type="text" class="customer-field" data-field="movingDate"
-                                            placeholder="0000.00.00" oninput="updateCustomerField(this)">
+                                        <input type="date" class="customer-field" data-field="movingDate"
+                                            oninput="updateCustomerField(this)">
                                     </div>
                                     <div class="info-item">
                                         <label>평형</label>
@@ -2948,8 +2948,8 @@
                                     </div>
                                     <div class="info-item">
                                         <label>계약일</label>
-                                        <input type="text" class="customer-field" data-field="contractDate"
-                                            placeholder="0000.00.00" oninput="updateCustomerField(this)">
+                                        <input type="date" class="customer-field" data-field="contractDate"
+                                            oninput="updateCustomerField(this)">
                                     </div>
                                     <div class="info-item">
                                         <label>총 계약금액 (VAT 포함)</label>
@@ -4598,7 +4598,12 @@
             currentCustomerId = customerId;
             currentData = { ...customer };
             document.querySelectorAll('.customer-field').forEach(f => {
-                f.value = currentData[f.dataset.field] || '';
+                let val = currentData[f.dataset.field] || '';
+                // date input에는 yyyy-mm-dd 형식 필요
+                if (f.type === 'date' && val.includes('.')) {
+                    val = val.replace(/\./g, '-');
+                }
+                f.value = val;
             });
             document.getElementById('customerStatus').value = currentData.status || 'consulting';
 
@@ -4626,8 +4631,8 @@
             const field = el.dataset.field;
 
             // 날짜 필드 자동 포맷팅 (YYYY.MM.DD)
-            // contractDate, movingDate, finalPaymentDate
-            if (['contractDate', 'movingDate', 'finalPaymentDate', 'constructionPeriod'].includes(field)) {
+            // constructionPeriod 만 처리 (나머지는 type="date"로 변경됨)
+            if (['constructionPeriod'].includes(field)) {
                 // 숫자만 추출
                 const nums = value.replace(/[^0-9]/g, '');
                 // 8자리인 경우에만 포맷팅 (YYYYMMDD -> YYYY.MM.DD)
@@ -5830,8 +5835,12 @@
 
             // 모든 input을 텍스트로 변환
             clonedElement.querySelectorAll('input').forEach(input => {
+                let val = input.value || '-';
+                if (input.type === 'date' && val !== '-') {
+                    val = val.replace(/-/g, '.');
+                }
                 const span = document.createElement('span');
-                span.textContent = input.value || '-';
+                span.textContent = val;
                 span.style.cssText = 'display:inline-block; padding:3px 0; font-size:inherit;';
                 input.parentNode.replaceChild(span, input);
             });
@@ -6324,6 +6333,53 @@
             circle.style.background = `conic-gradient(#34c759 0%, #34c759 ${rate}%, #e8e8ed ${rate}%, #e8e8ed 100%)`;
         }
     </script>
+    <!-- 비밀번호 확인 모달 -->
+    <div class="print-modal" id="passwordPromptModal">
+        <div class="print-modal-content" style="max-width:300px; padding:20px;">
+            <h3 id="passwordPromptTitle" style="margin-top:0; font-size:16px;">비밀번호 확인</h3>
+            <input type="password" id="passwordPromptInput" class="admin-password-input" placeholder="비밀번호"
+                style="width:100%; margin:15px 0;">
+            <div style="display:flex; justify-content:flex-end; gap:8px;">
+                <button id="passwordPromptCancel"
+                    style="padding:6px 12px; background:#f5f5f7; border:1px solid #d2d2d7; border-radius:6px; cursor:pointer;">취소</button>
+                <button id="passwordPromptConfirm"
+                    style="padding:6px 12px; background:#0071e3; color:#white; border:none; border-radius:6px; cursor:pointer; color:#fff;">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 인쇄 선택 모달 -->
+    <div class="print-modal" id="printSelectionModal">
+        <div class="print-modal-content">
+            <h3>🖨️ 인쇄할 항목 선택</h3>
+            <div class="print-options">
+                <label>
+                    <input type="checkbox" class="print-check" value="info" data-target="print-info" checked>
+                    고객정보 (Customer Info)
+                </label>
+                <label>
+                    <input type="checkbox" class="print-check" value="cover" data-target="print-cover">
+                    표지계약서 (Cover)
+                </label>
+                <label>
+                    <input type="checkbox" class="print-check" value="contract" data-target="print-contract">
+                    공사계약서 (Contract)
+                </label>
+                <label>
+                    <input type="checkbox" class="print-check" value="estimate" data-target="print-estimate">
+                    계약견적서 (Estimate)
+                </label>
+                <label>
+                    <input type="checkbox" class="print-check" value="stats" data-target="print-stats">
+                    통계분석 (Analysis)
+                </label>
+            </div>
+            <div class="print-modal-btns">
+                <button class="cancel-btn" onclick="closePrintSelectionModal()">취소</button>
+                <button class="print-btn" onclick="printSelectedDocs()">인쇄하기</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
