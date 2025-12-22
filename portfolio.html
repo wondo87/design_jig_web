@@ -1,178 +1,178 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PORTFOLIO - 디자인 지그</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        /* [기본 스타일] */
+@ -9,39 +9,55 @@
+        /* [디자인지그 전용 프리미엄 레이아웃] */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Noto Sans KR', sans-serif; color: #111; background: #fff; line-height: 1.5; }
+        .header { padding: 2rem 4rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
         
-        /* 헤더 고정 (z-index 3000) */
+        /* [수정 1] 헤더 상단 고정 */
         .header { 
-            padding: 2rem 4rem; display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 1px solid #eee; position: sticky; top: 0; background: #fff; z-index: 3000; 
+            padding: 2rem 4rem; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid #eee;
+            /* 고정을 위한 핵심 스타일 */
+            position: sticky; 
+            top: 0; 
+            background: rgba(255, 255, 255, 0.98); /* 배경을 살짝 불투명하게 */
+            z-index: 1000; /* 다른 요소들보다 위에 오도록 */
         }
         .logo { font-size: 1.2rem; font-weight: 700; text-decoration: none; color: #000; }
-        .nav-link { text-decoration: none; color: #666; font-size: 0.9rem; margin-left: 2rem; }
-
-        /* 포트폴리오 그리드 */
+        
+        /* 목록 그리드 */
         .portfolio-section { max-width: 1600px; margin: 0 auto; padding: 4rem; }
         .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap: 40px; }
         .portfolio-card { cursor: pointer; }
-        .portfolio-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border: 1px solid #f0f0f0; }
+        .portfolio-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+        .portfolio-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; transition: opacity 0.3s; }
+        .portfolio-card:hover img { opacity: 0.8; }
         .portfolio-card h3 { margin-top: 15px; font-size: 1rem; font-weight: 400; }
 
-        /* 상세 보기 레이어 (z-index 2000) */
-        #detailView { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #fff; z-index: 2000; overflow-y: auto; padding-top: 100px; 
-        }
+        /* [핵심] 프로젝트 상세 보기 레이어 */
+        /* 프로젝트 상세 보기 레이어 */
+        #detailView { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 2000; overflow-y: auto; }
         #detailView.active { display: block; }
         
-        .detail-container { display: flex; max-width: 1600px; margin: 0 auto; padding: 4rem; gap: 60px; min-height: 100vh; }
-        .detail-slider { flex: 1.2; position: relative; background: #fbfbfb; height: 70vh; display: flex; align-items: center; justify-content: center; }
-        .detail-slider img { max-width: 100%; max-height: 100%; object-fit: contain; transition: opacity 0.4s; }
+        .detail-container { display: flex; max-width: 1600px; margin: 0 auto; padding: 100px 4rem; gap: 60px; }
+        .detail-slider { flex: 1.2; position: relative; background: #f9f9f9; height: 70vh; display: flex; align-items: center; justify-content: center; }
+        .detail-slider img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .detail-container { display: flex; max-width: 1600px; margin: 0 auto; padding: 100px 4rem; gap: 60px; min-height: 100vh; }
+        .detail-slider { flex: 1.2; position: relative; background: #fbfbfb; height: 75vh; display: flex; align-items: center; justify-content: center; }
+        .detail-slider img { max-width: 100%; max-height: 100%; object-fit: contain; transition: opacity 0.5s ease-in-out; }
         
         .detail-info { flex: 0.8; }
-        .detail-info h2 { font-size: 1.8rem; font-weight: 400; margin-bottom: 30px; }
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; border-top: 1px solid #eee; padding-top: 30px; }
-        
-        /* 라벨 스타일 고정 */
+        .detail-info { flex: 0.8; padding-top: 20px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; border-top: 1px solid #eee; padding-top: 30px; margin-top: 30px; }
         .info-item h4 { font-size: 0.8rem; color: #999; margin-bottom: 5px; font-weight: 400; }
         .info-item p { font-size: 0.95rem; color: #333; }
 
-        .close-btn { position: fixed; top: 120px; right: 60px; font-size: 2.5rem; border: none; background: none; cursor: pointer; z-index: 2500; }
-        .slide-btn { position: absolute; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 3rem; color: #eee; cursor: pointer; padding: 20px; }
-
+        .close-btn { position: fixed; top: 30px; right: 40px; font-size: 3rem; border: none; background: none; cursor: pointer; z-index: 2100; font-weight: 100; }
+        .slide-btn { position: absolute; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 3rem; color: #ddd; cursor: pointer; padding: 20px; }
+        .close-btn { position: fixed; top: 30px; right: 40px; font-size: 3rem; border: none; background: none; cursor: pointer; z-index: 2100; font-weight: 100; color: #333; transition: color 0.3s; }
+        .close-btn:hover { color: #000; }
+        .slide-btn { position: absolute; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 3rem; color: #e0e0e0; cursor: pointer; padding: 20px; transition: color 0.3s; }
+        .slide-btn:hover { color: #333; }
+        
         @media (max-width: 1100px) { .detail-container { flex-direction: column; } .detail-info { padding-left: 0; } }
+        @media (max-width: 1100px) { .detail-container { flex-direction: column; padding: 6rem 2rem; } .detail-info { padding-left: 0; } .detail-slider { height: 50vh; } }
     </style>
 </head>
 <body>
     <header class="header">
-        <a href="index.html" class="logo">디자인 지그</a>
-        <nav><a href="portfolio.html" class="nav-link">프로젝트</a></nav>
+        <a href="index.html" class="logo">DESIGN JIG</a>
+        <nav><a href="portfolio.html" style="text-decoration:none; color:#111;">Project</a></nav>
+        <nav><a href="portfolio.html" style="text-decoration:none; color:#111; font-weight: 500;">Project</a></nav>
     </header>
 
-    <main class="portfolio-section">
-        <div id="portfolioGrid" class="portfolio-grid">
-            <p id="loading">데이터를 불러오는 중입니다...</p>
-        </div>
-    </main>
-
-    <div id="detailView">
-        <button class="close-btn" onclick="closeDetail()">×</button>
-        <div class="detail-container">
-            <div class="detail-slider">
-                <button class="slide-btn" style="left:0" onclick="changeImg(-1)">‹</button>
-                <img id="mainImg" src="">
+    <div class="portfolio-section">
+@ -59,9 +75,8 @@
                 <button class="slide-btn" style="right:0" onclick="changeImg(1)">›</button>
             </div>
             <div class="detail-info">
-                <h2 id="projTitle"></h2>
-                <div class="info-grid">
-                    <div class="info-item"><h4>면적</h4><p id="infoArea">-</p></div>
-                    <div class="info-item"><h4>주거형태</h4><p id="infoType">-</p></div>
-                    <div class="info-item"><h4>바닥</h4><p id="infoFloor">-</p></div>
-                    <div class="info-item"><h4>가구</h4><p id="infoFurniture">-</p></div>
-                </div>
+                <h2 id="projTitle" style="font-size: 2rem; font-weight: 400; margin-bottom: 20px;"></h2>
+                <div class="info-grid" id="infoGrid">
+                    </div>
+                <h2 id="projTitle" style="font-size: 2rem; font-weight: 400; margin-bottom: 30px;"></h2>
+                <div class="info-grid" id="infoGrid"></div>
             </div>
         </div>
     </div>
-
-    <script>
+@ -70,13 +85,12 @@
         let projects = [];
         let curIdx = 0;
         let imgIdx = 0;
-        let slideTimer = null;
-
-        // [긴급 대응] 넷리파이 차단 시 보여줄 고화질 샘플 데이터
-        const fallbackData = [{
-            properties: {
-                이름: { title: [{ plain_text: "반포 자이 거실 인테리어" }] },
-                면적: { select: { name: "32평" } },
-                카테고리: { select: { name: "아파트" } },
-                바닥: { select: { name: "강마루" } },
-                가구: { select: { name: "제작 가구" } },
-                URL: { files: [
-                    { external: { url: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80" } },
-                    { external: { url: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80" } }
-                ]}
-            }
-        }];
+        let slideTimer = null; // [수정 2] 자동 슬라이드 타이머 변수
 
         async function init() {
-            const grid = document.getElementById('portfolioGrid');
             try {
                 const res = await fetch('/.netlify/functions/portfolio');
-                if (!res.ok) throw new Error("Netlify Limit Exceeded");
-                
-                const data = await res.json();
-                projects = data.results || data;
-                if (!projects || projects.length === 0) projects = fallbackData;
-            } catch (err) {
-                console.warn("로컬 테스트 모드 가동 (Netlify 차단됨)");
-                projects = fallbackData;
-            }
-            renderGrid();
-        }
+                projects = await res.json();
+                console.log("불러온 데이터:", projects); // 데이터 확인용 로그
 
-        function renderGrid() {
-            const grid = document.getElementById('portfolioGrid');
-            grid.innerHTML = projects.map((p, i) => {
-                const img = p.properties.URL?.files?.[0]?.external?.url || "";
-                return `
-                    <div class="portfolio-card" onclick="openDetail(${i})">
-                        <img src="${img}" onerror="this.src='https://via.placeholder.com/600x600?text=Design+Jig'">
-                        <h3>${p.properties.이름?.title?.[0]?.plain_text || "프로젝트"}</h3>
-                    </div>
-                `;
-            }).join('');
+                const grid = document.getElementById('portfolioGrid');
+                grid.innerHTML = projects.map((p, i) => {
+                    const props = p.properties;
+@ -84,23 +98,21 @@
+                    const title = props.이름?.title?.[0]?.plain_text || "제목 없음";
+                    return `
+                        <div class="portfolio-card" onclick="openDetail(${i})">
+                            <img src="${img}">
+                            <img src="${img}" loading="lazy">
+                            <h3>${title}</h3>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error("초기화 에러:", err);
+            }
+            } catch (err) { console.error(err); }
         }
 
         function openDetail(i) {
-            curIdx = i; imgIdx = 0;
-            updateDetail();
+            console.log(i + "번째 프로젝트 클릭됨");
+            curIdx = i;
+            imgIdx = 0;
+            updateContent();
             document.getElementById('detailView').classList.add('active');
             document.body.style.overflow = 'hidden';
-            if (slideTimer) clearInterval(slideTimer);
-            slideTimer = setInterval(() => changeImg(1), 4000);
+            startAutoSlide(); // [수정 2] 상세창 열리면 자동 슬라이드 시작
         }
 
-        function updateDetail() {
-            const p = projects[curIdx].properties;
-            const images = p.URL?.files || [];
-            
-            document.getElementById('mainImg').src = images[imgIdx]?.external?.url || "";
-            document.getElementById('projTitle').textContent = p.이름?.title?.[0]?.plain_text || "-";
-            
-            // [수정] 벨라/신형태 오타 제거 및 정확한 매핑
-            document.getElementById('infoArea').textContent = p.면적?.select?.name || "-";
-            document.getElementById('infoType').textContent = p.카테고리?.select?.name || "-";
-            document.getElementById('infoFloor').textContent = p.바닥?.select?.name || "-";
-            document.getElementById('infoFurniture').textContent = p.가구?.select?.name || "-";
+        function updateContent() {
+@ -108,11 +120,15 @@
+                const p = projects[curIdx].properties;
+                const images = p.URL?.files || [];
+                
+                // 이미지와 제목
+                document.getElementById('mainImg').src = images[imgIdx]?.external?.url || "";
+                const mainImg = document.getElementById('mainImg');
+                mainImg.style.opacity = 0; // 부드러운 전환을 위한 깜빡임 효과
+                setTimeout(() => {
+                    mainImg.src = images[imgIdx]?.external?.url || "";
+                    mainImg.style.opacity = 1;
+                }, 200);
+
+                document.getElementById('projTitle').textContent = p.이름?.title?.[0]?.plain_text || "-";
+                
+                // 상세 정보 매핑 (노션 속성명 기준)
+                const infoHtml = `
+                    <div class="info-item"><h4>면적</h4><p>${p.면적?.select?.name || p.면적?.rich_text?.[0]?.plain_text || "-"}</p></div>
+                    <div class="info-item"><h4>주거형태</h4><p>${p.카테고리?.select?.name || "-"}</p></div>
+@ -120,19 +136,33 @@
+                    <div class="info-item"><h4>가구</h4><p>${p.가구?.select?.name || p.가구?.rich_text?.[0]?.plain_text || "-"}</p></div>
+                `;
+                document.getElementById('infoGrid').innerHTML = infoHtml;
+            } catch (err) {
+                console.error("상세보기 업데이트 에러:", err);
+            }
+            } catch (err) { console.error(err); }
         }
 
         function changeImg(dir) {
+            stopAutoSlide(); // 수동 조작 시 타이머 잠시 멈춤
             const imgs = projects[curIdx].properties.URL?.files || [];
+            if (imgs.length === 0) return;
             imgIdx = (imgIdx + dir + imgs.length) % imgs.length;
-            const imgTag = document.getElementById('mainImg');
-            imgTag.style.opacity = 0;
-            setTimeout(() => {
-                imgTag.src = imgs[imgIdx]?.external?.url || "";
-                imgTag.style.opacity = 1;
-            }, 200);
+            document.getElementById('mainImg').src = imgs[imgIdx]?.external?.url || "";
+            updateContent();
+            startAutoSlide(); // 다시 자동 슬라이드 시작
+        }
+
+        // [수정 2] 자동 슬라이드 시작 함수 (3초 간격)
+        function startAutoSlide() {
+            stopAutoSlide();
+            slideTimer = setInterval(() => {
+                changeImg(1);
+            }, 3000); 
+        }
+
+        // [수정 2] 자동 슬라이드 정지 함수
+        function stopAutoSlide() {
+            if (slideTimer) clearInterval(slideTimer);
         }
 
         function closeDetail() {
-            if (slideTimer) clearInterval(slideTimer);
+            stopAutoSlide(); // [수정 2] 창 닫으면 자동 슬라이드 완전 정지
             document.getElementById('detailView').classList.remove('active');
             document.body.style.overflow = 'auto';
         }
-
-        window.onload = init;
-    </script>
-</body>
-</html>
