@@ -544,38 +544,35 @@
         function displayColumns(columns) {
             const container = document.getElementById('columnsContainer');
 
-            // 이미지가 있는 항목만 필터링
-            const validColumns = columns.filter(col => {
-                const hasImage = col.properties?.썸네일?.files?.length > 0 ||
-                    col.properties?.URL?.files?.length > 0;
-                return hasImage;
-            });
-
-            if (validColumns.length === 0) {
+            if (columns.length === 0) {
                 container.innerHTML = '<p style="text-align:center;color:#888;padding:60px;">준비된 칼럼이 없습니다.</p>';
                 return;
             }
 
-            container.innerHTML = validColumns.map((col, index) => {
+            container.innerHTML = columns.map((col, index) => {
                 const p = col.properties;
-                const title = p.이름?.title?.[0]?.plain_text || '제목 없음';
-                const date = p.날짜?.date?.start || new Date().toISOString().split('T')[0];
-                const thumbnail = p.썸네일?.files?.[0]?.external?.url ||
+                // Notion 속성에 맞춰 매핑 (제목, 작성일, 카테고리, 태그)
+                const title = p.제목?.title?.[0]?.plain_text || p.이름?.title?.[0]?.plain_text || '제목 없음';
+                const date = p.작성일?.date?.start || p.날짜?.date?.start || new Date().toISOString().split('T')[0];
+                const category = p.카테고리?.select?.name || '';
+                const tags = p.태그?.multi_select?.map(t => t.name).join(', ') || p.태그?.select?.name || '인테리어';
+
+                // 썸네일: cover, 썸네일, URL 순서로 찾음
+                const thumbnail = col.cover?.external?.url ||
+                    col.cover?.file?.url ||
+                    p.썸네일?.files?.[0]?.external?.url ||
                     p.썸네일?.files?.[0]?.file?.url ||
                     p.URL?.files?.[0]?.external?.url ||
-                    p.URL?.files?.[0]?.file?.url ||
-                    'https://via.placeholder.com/600x400?text=Column';
-                const summary = p.요약?.rich_text?.[0]?.plain_text || '';
-                const tag = p.태그?.select?.name || '인테리어';
+                    'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600';
 
                 return `
                     <article class="column-card" onclick="openColumn(${index})">
-                        <img class="column-thumbnail" src="${thumbnail}" alt="${title}" loading="lazy" onerror="this.src='https://via.placeholder.com/600x400?text=Design+Jig'">
+                        <img class="column-thumbnail" src="${thumbnail}" alt="${title}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600'">
                         <div class="column-content">
                             <div class="column-date">${formatDate(date)}</div>
                             <h2 class="column-title">${title}</h2>
-                            <p class="column-summary">${summary}</p>
-                            <span class="column-tag">${tag}</span>
+                            <p class="column-summary">${category}</p>
+                            <span class="column-tag">${tags}</span>
                         </div>
                     </article>
                 `;
@@ -592,19 +589,20 @@
             if (!column) return;
 
             const p = column.properties;
-            const title = p.이름?.title?.[0]?.plain_text || '제목 없음';
-            const date = p.날짜?.date?.start || '';
-            const thumbnail = p.썸네일?.files?.[0]?.external?.url ||
+            const title = p.제목?.title?.[0]?.plain_text || p.이름?.title?.[0]?.plain_text || '제목 없음';
+            const date = p.작성일?.date?.start || p.날짜?.date?.start || '';
+            const thumbnail = column.cover?.external?.url ||
+                column.cover?.file?.url ||
+                p.썸네일?.files?.[0]?.external?.url ||
                 p.썸네일?.files?.[0]?.file?.url ||
-                p.URL?.files?.[0]?.external?.url ||
-                p.URL?.files?.[0]?.file?.url || '';
-            const tag = p.태그?.select?.name || '인테리어';
-            const content = p.본문?.rich_text?.map(t => t.plain_text).join('\n') || p.요약?.rich_text?.[0]?.plain_text || '';
+                'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600';
+            const category = p.카테고리?.select?.name || '';
+            const tags = p.태그?.multi_select?.map(t => t.name).join(', ') || p.태그?.select?.name || '인테리어';
 
             document.getElementById('modalImage').src = thumbnail;
             document.getElementById('modalTitle').textContent = title;
-            document.getElementById('modalMeta').textContent = formatDate(date) + ' · ' + tag;
-            document.getElementById('modalContent').innerHTML = content.replace(/\n/g, '<br>');
+            document.getElementById('modalMeta').textContent = formatDate(date) + ' · ' + category + (category ? ' · ' : '') + tags;
+            document.getElementById('modalContent').innerHTML = '<p>이 칼럼의 상세 내용입니다.</p>';
             document.getElementById('columnModal').classList.add('show');
             document.body.style.overflow = 'hidden';
         }
