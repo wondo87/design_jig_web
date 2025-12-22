@@ -979,6 +979,11 @@
                 margin: 0 !important;
                 padding: 20px !important;
                 visibility: visible !important;
+                page-break-inside: avoid;
+            }
+
+            /* 마지막 인쇄 섹션 뒤에는 페이지 나눔 없음 */
+            .print-section.show-print:not(:last-of-type) {
                 page-break-after: always;
             }
 
@@ -2391,11 +2396,16 @@
             .document-wrapper {
                 box-shadow: none !important;
                 border-radius: 0 !important;
-                page-break-after: always;
+                page-break-inside: avoid;
                 margin: 0 !important;
                 padding: 10px !important;
                 width: 100% !important;
                 max-width: none !important;
+            }
+
+            /* 마지막 문서 뒤에는 페이지 나눔 없음 */
+            .document-wrapper:not(:last-child) {
+                page-break-after: always;
             }
 
             /* 테이블 전체 너비 사용 */
