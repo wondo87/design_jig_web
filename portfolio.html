@@ -691,16 +691,21 @@
                 return hasImage;
             });
 
-            // 평수 필터 적용
+            // 평수 필터 적용 (범위 기반)
             if (filter !== 'all') {
                 filteredData = filteredData.filter(p => {
                     const area = p.properties.면적?.select?.name || '';
-                    if (filter === '50py+') {
-                        // 50py 이상
-                        const num = parseInt(area);
-                        return num >= 50;
+                    const num = parseInt(area); // 숫자만 추출 (32py -> 32)
+
+                    if (isNaN(num)) return false; // 숫자가 없으면 제외
+
+                    switch (filter) {
+                        case '20py': return num >= 20 && num < 30;
+                        case '30py': return num >= 30 && num < 40;
+                        case '40py': return num >= 40 && num < 50;
+                        case '50py+': return num >= 50;
+                        default: return true;
                     }
-                    return area.toLowerCase().includes(filter.replace('py', ''));
                 });
             }
 
