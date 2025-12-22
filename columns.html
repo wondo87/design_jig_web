@@ -589,7 +589,7 @@
             return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
         }
 
-        function openColumn(index) {
+        async function openColumn(index) {
             const column = COLUMNS_DATA[index];
             if (!column) return;
 
@@ -607,9 +607,69 @@
             document.getElementById('modalImage').src = thumbnail;
             document.getElementById('modalTitle').textContent = title;
             document.getElementById('modalMeta').textContent = formatDate(date) + ' · ' + category + (category ? ' · ' : '') + tags;
-            document.getElementById('modalContent').innerHTML = '<p>이 칼럼의 상세 내용입니다.</p>';
+
+            const contentDiv = document.getElementById('modalContent');
+            contentDiv.innerHTML = '<div style="text-align:center;padding:40px;"><div class="loading-spinner"></div><p>내용을 불러오는 중...</p></div>';
+
             document.getElementById('columnModal').classList.add('show');
             document.body.style.overflow = 'hidden';
+
+            // 내용 불러오기
+            try {
+                const res = await fetch(`/api/content?id=${column.id}`);
+                if (!res.ok) throw new Error('Failed to fetch content');
+                const blocks = await res.json();
+                contentDiv.innerHTML = renderNotionBlocks(blocks);
+            } catch (e) {
+                console.error('Content Load Error:', e);
+                contentDiv.innerHTML = '<p>내용을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.</p>';
+            }
+        }
+
+        function renderNotionBlocks(blocks) {
+            if (!blocks || blocks.length === 0) return '<p>내용이 없습니다.</p>';
+
+            return blocks.map(block => {
+                const type = block.type;
+                const value = block[type];
+
+                switch (type) {
+                    case 'paragraph':
+                        return `<p>${renderRichText(value.rich_text)}</p>`;
+                    case 'heading_1':
+                        return `<h2>${renderRichText(value.rich_text)}</h2>`;
+                    case 'heading_2':
+                        return `<h3>${renderRichText(value.rich_text)}</h3>`;
+                    case 'heading_3':
+                        return `<h4>${renderRichText(value.rich_text)}</h4>`;
+                    case 'bulleted_list_item':
+                        return `<ul><li>${renderRichText(value.rich_text)}</li></ul>`;
+                    case 'numbered_list_item':
+                        return `<ol><li>${renderRichText(value.rich_text)}</li></ol>`;
+                    case 'quote':
+                        return `<blockquote>${renderRichText(value.rich_text)}</blockquote>`;
+                    case 'image':
+                        const caption = value.caption?.[0]?.plain_text || '';
+                        const imageUrl = value.type === 'external' ? value.external.url : value.file.url;
+                        return `<figure><img src="${imageUrl}" alt="${caption}"><figcaption>${caption}</figcaption></figure>`;
+                    default:
+                        return '';
+                }
+            }).join('');
+        }
+
+        function renderRichText(richText) {
+            if (!richText || richText.length === 0) return '';
+            return richText.map(text => {
+                let content = text.plain_text.replace(/\n/g, '<br>');
+                if (text.annotations.bold) content = `<strong>${content}</strong>`;
+                if (text.annotations.italic) content = `<em>${content}</em>`;
+                if (text.annotations.strikethrough) content = `<del>${content}</del>`;
+                if (text.annotations.underline) content = `<u>${content}</u>`;
+                if (text.annotations.code) content = `<code>${content}</code>`;
+                if (text.href) content = `<a href="${text.href}" target="_blank">${content}</a>`;
+                return content;
+            }).join('');
         }
 
         function closeModal() {
