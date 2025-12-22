@@ -4098,7 +4098,9 @@
             `;
 
             try {
-                const response = await fetch('/api/quotes');
+                // Google Apps Script URL 사용 (Vercel 환경변수 우회)
+                const GAS_URL = 'https://script.google.com/macros/s/AKfycbxDw-t-SVUz3y8wiRmTQ2jcR74uuiBlu0-yv6heBJfErPmO6QhaPn3SD0qo1QBmkWmG1g/exec';
+                const response = await fetch(GAS_URL);
                 if (!response.ok) throw new Error('API 응답 오류');
 
                 const quotes = await response.json();
