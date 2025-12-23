@@ -400,13 +400,10 @@
         }
 
         .column-card-image {
+            width: 100%;
             aspect-ratio: 16/10;
             background: #e0e0e0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #999;
-            font-size: 0.9rem;
+            object-fit: cover;
         }
 
         .column-card-content {
@@ -902,19 +899,18 @@
                     const title = props['제목']?.title?.[0]?.plain_text || '제목 없음';
                     const category = props['카테고리']?.select?.name || '가이드';
 
-                    // 커버 이미지 처리
-                    let coverUrl = '';
-                    if (article.cover) {
-                        coverUrl = article.cover.type === 'external'
-                            ? article.cover.external.url
-                            : article.cover.file?.url || '';
-                    }
+                    // 썸네일 우선순위: 1.커버 2.속성(썸네일) 3.속성(Thumbnail) 4.기본이미지
+                    const coverUrl = article.cover?.external?.url ||
+                        article.cover?.file?.url ||
+                        props.썸네일?.files?.[0]?.external?.url ||
+                        props.썸네일?.files?.[0]?.file?.url ||
+                        props.Thumbnail?.files?.[0]?.external?.url ||
+                        props.Thumbnail?.files?.[0]?.file?.url ||
+                        'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600';
 
                     return `
-                        <article class="column-card" onclick="window.location.href='/columns#${article.id}'">
-                            <div class="column-card-image" style="${coverUrl ? `background-image:url('${coverUrl}'); background-size:cover; background-position:center;` : ''}">
-                                ${!coverUrl ? '이미지' : ''}
-                            </div>
+                        <article class="column-card" onclick="window.location.href='/columns'">
+                            <img class="column-card-image" src="${coverUrl}" alt="${title}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600'">
                             <div class="column-card-content">
                                 <span class="column-card-category">${category}</span>
                                 <h4 class="column-card-title">${title}</h4>
