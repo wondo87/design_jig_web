@@ -1018,13 +1018,15 @@
                     const article = articles[0];
                     const props = article.properties;
 
-                    // 커버 이미지 URL 가져오기
+                    // 커버 이미지 URL 가져오기 (커버 > 썸네일 > 아이콘 순)
                     const coverUrl = article.cover?.external?.url ||
                         article.cover?.file?.url ||
                         props.썸네일?.files?.[0]?.external?.url ||
                         props.썸네일?.files?.[0]?.file?.url ||
                         props.Thumbnail?.files?.[0]?.external?.url ||
-                        props.Thumbnail?.files?.[0]?.file?.url;
+                        props.Thumbnail?.files?.[0]?.file?.url ||
+                        (article.icon?.type === 'external' ? article.icon.external.url : null) ||
+                        (article.icon?.type === 'file' ? article.icon.file.url : null);
 
                     if (coverUrl) {
                         const container = document.getElementById(feature.id);
@@ -1074,13 +1076,15 @@
                     const title = props['제목']?.title?.[0]?.plain_text || '제목 없음';
                     const category = props['카테고리']?.select?.name || '가이드';
 
-                    // 썸네일 우선순위: 1.커버 2.속성(썸네일) 3.속성(Thumbnail) 4.기본이미지
+                    // 썸네일 우선순위: 1.커버 2.속성(썸네일) 3.아이콘 4.기본이미지
                     const coverUrl = article.cover?.external?.url ||
                         article.cover?.file?.url ||
                         props.썸네일?.files?.[0]?.external?.url ||
                         props.썸네일?.files?.[0]?.file?.url ||
                         props.Thumbnail?.files?.[0]?.external?.url ||
                         props.Thumbnail?.files?.[0]?.file?.url ||
+                        (article.icon?.type === 'external' ? article.icon.external.url : null) ||
+                        (article.icon?.type === 'file' ? article.icon.file.url : null) ||
                         'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600';
 
                     return `
@@ -1113,6 +1117,8 @@
                 article.cover?.file?.url ||
                 props.썸네일?.files?.[0]?.external?.url ||
                 props.썸네일?.files?.[0]?.file?.url ||
+                (article.icon?.type === 'external' ? article.icon.external.url : null) ||
+                (article.icon?.type === 'file' ? article.icon.file.url : null) ||
                 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600';
 
             document.getElementById('guideModalImage').src = coverUrl;
