@@ -5257,9 +5257,11 @@
 
             // 고객별 견적 데이터는 항상 저장
             saveEstimateData();
-            const idx = customers.findIndex(c => c.customerId === currentCustomerId);
-            if (idx >= 0) customers[idx] = { ...currentData };
-            else customers.push({ ...currentData });
+
+            // 중복 제거: 동일한 customerId가 있으면 모두 제거 후 새로 추가
+            customers = customers.filter(c => c.customerId !== currentCustomerId);
+            customers.push({ ...currentData });
+
             localStorage.setItem('dz_customers', JSON.stringify(customers));
 
             // Google Sheets에도 저장
@@ -5274,11 +5276,7 @@
                 console.error('Google Sheets 저장 실패:', error);
             }
 
-            // 저장 후 고객 목록으로 이동
-            currentCustomerId = null;
-            currentData = {};
-            document.getElementById('emptyState').style.display = 'block';
-            document.getElementById('customerView').style.display = 'none';
+            // 저장 후 고객 목록 업데이트 (현재 화면 유지)
             initYearFilter();
             updateCustomerList();
 
