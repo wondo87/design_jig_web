@@ -764,8 +764,9 @@
                     </ul>
                     <a href="/portfolio" class="btn-feature">시공 사례 보기</a>
                 </div>
-                <div class="feature-image">
-                    <span class="feature-image-placeholder">주거 공간 이미지</span>
+                <div class="feature-image" id="featureImage1">
+                    <img src="" alt="맞춤형 공간 설계" style="width:100%; height:100%; object-fit:cover; display:none;">
+                    <span class="feature-image-placeholder">로딩 중...</span>
                 </div>
             </div>
         </section>
@@ -773,8 +774,9 @@
         <!-- Feature Section 2: 좌측 이미지 + 우측 텍스트 (시공 품질 보증) -->
         <section class="feature-section bg-light">
             <div class="feature-container">
-                <div class="feature-image">
-                    <span class="feature-image-placeholder">시공 품질 이미지</span>
+                <div class="feature-image" id="featureImage2">
+                    <img src="" alt="시공 품질 보증" style="width:100%; height:100%; object-fit:cover; display:none;">
+                    <span class="feature-image-placeholder">로딩 중...</span>
                 </div>
                 <div class="feature-content">
                     <div class="feature-label">
@@ -859,8 +861,9 @@
                     </ul>
                     <a href="/quote" class="btn-feature">상담 신청하기</a>
                 </div>
-                <div class="feature-image">
-                    <span class="feature-image-placeholder">맞춤 솔루션 이미지</span>
+                <div class="feature-image" id="featureImage3">
+                    <img src="" alt="맞춤형 솔루션" style="width:100%; height:100%; object-fit:cover; display:none;">
+                    <span class="feature-image-placeholder">로딩 중...</span>
                 </div>
             </div>
         </section>
@@ -994,6 +997,57 @@
             document.getElementById('nav').classList.toggle('active');
             this.classList.toggle('active');
         });
+    </script>
+    <script>
+        // 피처 섹션 이미지 로드 (Notion 카테고리에서 이미지 가져오기)
+        async function loadFeatureImages() {
+            const featureCategories = [
+                { id: 'featureImage1', category: '맞춤형 공간 설계' },
+                { id: 'featureImage2', category: '시공 품질 보증' },
+                { id: 'featureImage3', category: '맞춤형 솔루션' }
+            ];
+
+            for (const feature of featureCategories) {
+                try {
+                    const response = await fetch(`/api/columns?category=${encodeURIComponent(feature.category)}&limit=1`);
+                    if (!response.ok) continue;
+
+                    const articles = await response.json();
+                    if (articles.length === 0) continue;
+
+                    const article = articles[0];
+                    const props = article.properties;
+
+                    // 커버 이미지 URL 가져오기
+                    const coverUrl = article.cover?.external?.url ||
+                        article.cover?.file?.url ||
+                        props.썸네일?.files?.[0]?.external?.url ||
+                        props.썸네일?.files?.[0]?.file?.url ||
+                        props.Thumbnail?.files?.[0]?.external?.url ||
+                        props.Thumbnail?.files?.[0]?.file?.url;
+
+                    if (coverUrl) {
+                        const container = document.getElementById(feature.id);
+                        const img = container.querySelector('img');
+                        const placeholder = container.querySelector('.feature-image-placeholder');
+
+                        img.src = coverUrl;
+                        img.onload = function () {
+                            img.style.display = 'block';
+                            if (placeholder) placeholder.style.display = 'none';
+                        };
+                        img.onerror = function () {
+                            if (placeholder) placeholder.textContent = '이미지를 불러올 수 없습니다';
+                        };
+                    }
+                } catch (error) {
+                    console.error(`피처 이미지 로드 오류 (${feature.category}):`, error);
+                }
+            }
+        }
+
+        // 페이지 로드 시 피처 이미지 불러오기
+        loadFeatureImages();
     </script>
     <script>
         // 가이드 데이터 저장
