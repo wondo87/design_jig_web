@@ -773,31 +773,9 @@
                     <h3 class="column-title">인테리어 가이드</h3>
                     <a href="/columns" class="column-more">더보기 →</a>
                 </div>
-                <div class="column-grid">
-                    <article class="column-card">
-                        <div class="column-card-image">이미지</div>
-                        <div class="column-card-content">
-                            <span class="column-card-category">가이드</span>
-                            <h4 class="column-card-title">인테리어 예산, 얼마가 적당할까?</h4>
-                            <p class="column-card-excerpt">평수별, 공사 범위별 예산 가이드라인.</p>
-                        </div>
-                    </article>
-                    <article class="column-card">
-                        <div class="column-card-image">이미지</div>
-                        <div class="column-card-content">
-                            <span class="column-card-category">가이드</span>
-                            <h4 class="column-card-title">견적서 제대로 읽는 법</h4>
-                            <p class="column-card-excerpt">복잡한 견적서, 핵심만 쏙쏙 이해하기.</p>
-                        </div>
-                    </article>
-                    <article class="column-card">
-                        <div class="column-card-image">이미지</div>
-                        <div class="column-card-content">
-                            <span class="column-card-category">가이드</span>
-                            <h4 class="column-card-title">인테리어 계약 시 주의사항</h4>
-                            <p class="column-card-excerpt">분쟁 없는 계약을 위한 필수 체크포인트.</p>
-                        </div>
-                    </article>
+                <div class="column-grid" id="guideGrid">
+                    <!-- Notion에서 가이드 카테고리 글을 불러옵니다 -->
+                    <div class="loading-placeholder">로딩 중...</div>
                 </div>
             </div>
         </section>
@@ -902,6 +880,56 @@
             document.getElementById('nav').classList.toggle('active');
             this.classList.toggle('active');
         });
+    </script>
+    <script>
+        // 인테리어 가이드 로드 (Notion에서 '가이드' 카테고리 글 가져오기)
+        async function loadGuides() {
+            const guideGrid = document.getElementById('guideGrid');
+
+            try {
+                const response = await fetch('/api/columns?category=가이드&limit=3');
+                if (!response.ok) throw new Error('API 오류');
+
+                const articles = await response.json();
+
+                if (articles.length === 0) {
+                    guideGrid.innerHTML = '<p style="color:#666; text-align:center; grid-column:1/-1;">등록된 가이드가 없습니다.</p>';
+                    return;
+                }
+
+                guideGrid.innerHTML = articles.map(article => {
+                    const props = article.properties;
+                    const title = props['제목']?.title?.[0]?.plain_text || '제목 없음';
+                    const category = props['카테고리']?.select?.name || '가이드';
+
+                    // 커버 이미지 처리
+                    let coverUrl = '';
+                    if (article.cover) {
+                        coverUrl = article.cover.type === 'external'
+                            ? article.cover.external.url
+                            : article.cover.file?.url || '';
+                    }
+
+                    return `
+                        <article class="column-card" onclick="window.location.href='/columns#${article.id}'">
+                            <div class="column-card-image" style="${coverUrl ? `background-image:url('${coverUrl}'); background-size:cover; background-position:center;` : ''}">
+                                ${!coverUrl ? '이미지' : ''}
+                            </div>
+                            <div class="column-card-content">
+                                <span class="column-card-category">${category}</span>
+                                <h4 class="column-card-title">${title}</h4>
+                            </div>
+                        </article>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('가이드 로드 오류:', error);
+                guideGrid.innerHTML = '<p style="color:#999; text-align:center; grid-column:1/-1;">가이드를 불러올 수 없습니다.</p>';
+            }
+        }
+
+        // 페이지 로드 시 가이드 불러오기
+        loadGuides();
     </script>
     <script src="/js/coming-soon.js"></script>
 </body>

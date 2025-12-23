@@ -15,10 +15,11 @@ export default async function handler(req, res) {
     // 환경변수 문제로 인해 임시로 ID 하드코딩
     const databaseId = '2d116b5df7b380dcb0ebc5e97f6f9332';
 
-    // if (!databaseId) { ... } 체크 제거
+    // 카테고리 필터 파라미터 확인
+    const { category, limit } = req.query;
 
     try {
-        const response = await notion.databases.query({
+        const queryOptions = {
             database_id: databaseId,
             sorts: [
                 {
@@ -26,7 +27,24 @@ export default async function handler(req, res) {
                     direction: 'descending',
                 },
             ],
-        });
+        };
+
+        // 카테고리 필터 추가
+        if (category) {
+            queryOptions.filter = {
+                property: '카테고리',
+                select: {
+                    equals: category
+                }
+            };
+        }
+
+        // 결과 개수 제한
+        if (limit) {
+            queryOptions.page_size = parseInt(limit, 10);
+        }
+
+        const response = await notion.databases.query(queryOptions);
 
         // 노션의 원본 데이터(results)를 그대로 클라이언트에 보냅니다.
         res.status(200).json(response.results);
