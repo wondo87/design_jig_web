@@ -1000,4 +1000,15 @@
             });
         });
 
-        // Start aut
+        // Start autoplay
+        startAutoplay();
+
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            document.getElementById('nav').classList.toggle('active');
+            this.classList.toggle('active');
+        });
+    </script>
+    <script src="/js/coming-soon.js"></script>
+</body>
+</html>
