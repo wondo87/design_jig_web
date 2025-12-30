@@ -2,9 +2,9 @@ import { Client } from '@notionhq/client';
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
-// 메모리 캐시 (5분 TTL)
+// 메모리 캐시 (1시간 TTL)
 const cache = new Map();
-const CACHE_TTL = 5 * 60 * 1000; // 5분
+const CACHE_TTL = 60 * 60 * 1000; // 1시간
 
 // 하위 블록을 병렬로 가져오는 함수 (깊이 제한 적용)
 async function getBlockWithChildren(blockId, depth = 0, maxDepth = 2) {
@@ -52,10 +52,12 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Page ID is required' });
     }
 
-    // 캐시 확인
+    // Edge/CDN 캐시 헤더 설정 (1시간 캐시, 백그라운드 재검증)
+    res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+
+    // 메모리 캐시 확인
     const cached = cache.get(id);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-        res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
         res.setHeader('X-Cache', 'HIT');
         return res.status(200).json(cached.data);
     }
@@ -66,8 +68,6 @@ export default async function handler(req, res) {
         // 캐시에 저장
         cache.set(id, { data: allBlocks, timestamp: Date.now() });
 
-        // 캐시 헤더 설정
-        res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
         res.setHeader('X-Cache', 'MISS');
         res.status(200).json(allBlocks);
     } catch (error) {
