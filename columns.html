@@ -575,6 +575,16 @@
             margin: 4px 0;
         }
 
+        /* 중첩된 리스트 스타일 */
+        .notion-list .notion-list {
+            margin: 8px 0 8px 0;
+        }
+
+        .notion-list li>p {
+            margin: 4px 0;
+            color: #555;
+        }
+
         /* Notion 체크리스트 */
         .notion-todo-list {
             list-style: none;
@@ -1135,7 +1145,10 @@
                 if (type === 'bulleted_list_item') {
                     let items = '';
                     while (i < blocks.length && blocks[i].type === 'bulleted_list_item') {
-                        items += `<li>${renderRichText(blocks[i].bulleted_list_item.rich_text)}</li>`;
+                        const listBlock = blocks[i];
+                        const listText = renderRichText(listBlock.bulleted_list_item.rich_text);
+                        const listChildren = listBlock.children ? renderNotionBlocks(listBlock.children) : '';
+                        items += `<li>${listText}${listChildren}</li>`;
                         i++;
                     }
                     result += `<ul class="notion-list">${items}</ul>`;
@@ -1146,7 +1159,10 @@
                 if (type === 'numbered_list_item') {
                     let items = '';
                     while (i < blocks.length && blocks[i].type === 'numbered_list_item') {
-                        items += `<li>${renderRichText(blocks[i].numbered_list_item.rich_text)}</li>`;
+                        const listBlock = blocks[i];
+                        const listText = renderRichText(listBlock.numbered_list_item.rich_text);
+                        const listChildren = listBlock.children ? renderNotionBlocks(listBlock.children) : '';
+                        items += `<li>${listText}${listChildren}</li>`;
                         i++;
                     }
                     result += `<ol class="notion-list">${items}</ol>`;
