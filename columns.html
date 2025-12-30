@@ -1211,9 +1211,10 @@
                     return `<details class="notion-toggle"><summary>${toggleText}</summary><div class="toggle-content">${toggleChildren}</div></details>`;
 
                 case 'image':
-                    const imgCaption = value.caption?.[0]?.plain_text || '';
+                    const imgCaptionText = value.caption ? renderRichText(value.caption) : '';
+                    const imgAltText = value.caption?.[0]?.plain_text || '';
                     const imageUrl = value.type === 'external' ? value.external?.url : value.file?.url;
-                    return imageUrl ? `<figure class="notion-image"><img src="${imageUrl}" alt="${imgCaption}" loading="lazy"><figcaption>${imgCaption}</figcaption></figure>` : '';
+                    return imageUrl ? `<figure class="notion-image"><img src="${imageUrl}" alt="${imgAltText}" loading="lazy"><figcaption>${imgCaptionText}</figcaption></figure>` : '';
 
                 case 'video':
                     const videoUrl = value.type === 'external' ? value.external?.url : value.file?.url;
