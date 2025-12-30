@@ -2,8 +2,8 @@ import { Client } from '@notionhq/client';
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
-// 하위 블록을 재귀적으로 가져오는 함수
-async function getBlockWithChildren(blockId) {
+// 하위 블록을 병렬로 가져오는 함수 (깊이 제한 적용)
+async function getBlockWithChildren(blockId, depth = 0, maxDepth = 2) {
     let allBlocks = [];
     let cursor = undefined;
     let hasMore = true;
@@ -15,15 +15,25 @@ async function getBlockWithChildren(blockId) {
             start_cursor: cursor,
         });
 
-        for (const block of response.results) {
-            // 하위 블록이 있는 경우 재귀적으로 가져오기
-            if (block.has_children) {
-                const children = await getBlockWithChildren(block.id);
-                block.children = children;
-            }
-            allBlocks.push(block);
+        // 하위 블록이 있는 블록들을 필터링
+        const blocksWithChildren = response.results.filter(
+            block => block.has_children && depth < maxDepth
+        );
+
+        // 병렬로 모든 하위 블록 가져오기
+        if (blocksWithChildren.length > 0) {
+            const childrenPromises = blocksWithChildren.map(block =>
+                getBlockWithChildren(block.id, depth + 1, maxDepth)
+            );
+            const childrenResults = await Promise.all(childrenPromises);
+
+            // 각 블록에 children 할당
+            blocksWithChildren.forEach((block, index) => {
+                block.children = childrenResults[index];
+            });
         }
 
+        allBlocks = allBlocks.concat(response.results);
         hasMore = response.has_more;
         cursor = response.next_cursor;
     }
