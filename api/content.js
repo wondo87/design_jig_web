@@ -2,6 +2,35 @@ import { Client } from '@notionhq/client';
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
+// 하위 블록을 재귀적으로 가져오는 함수
+async function getBlockWithChildren(blockId) {
+    let allBlocks = [];
+    let cursor = undefined;
+    let hasMore = true;
+
+    while (hasMore) {
+        const response = await notion.blocks.children.list({
+            block_id: blockId,
+            page_size: 100,
+            start_cursor: cursor,
+        });
+
+        for (const block of response.results) {
+            // 하위 블록이 있는 경우 재귀적으로 가져오기
+            if (block.has_children) {
+                const children = await getBlockWithChildren(block.id);
+                block.children = children;
+            }
+            allBlocks.push(block);
+        }
+
+        hasMore = response.has_more;
+        cursor = response.next_cursor;
+    }
+
+    return allBlocks;
+}
+
 export default async function handler(req, res) {
     const { id } = req.query;
 
@@ -10,23 +39,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        let allBlocks = [];
-        let cursor = undefined;
-        let hasMore = true;
-
-        // 페이지네이션으로 모든 블록 가져오기
-        while (hasMore) {
-            const response = await notion.blocks.children.list({
-                block_id: id,
-                page_size: 100,
-                start_cursor: cursor,
-            });
-
-            allBlocks = allBlocks.concat(response.results);
-            hasMore = response.has_more;
-            cursor = response.next_cursor;
-        }
-
+        const allBlocks = await getBlockWithChildren(id);
         res.status(200).json(allBlocks);
     } catch (error) {
         console.error('Notion Content API Error:', error);

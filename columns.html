@@ -339,23 +339,31 @@
         }
 
         .modal-body .content {
-            font-size: 1.05rem;
-            line-height: 1.9;
+            font-size: 1rem;
+            line-height: 1.6;
             color: #333;
         }
 
         .modal-body .content p {
-            margin-bottom: 1.5em;
+            margin: 2px 0;
         }
 
         .modal-body .content h2 {
-            margin: 2em 0 1em;
-            font-size: 1.4rem;
+            margin: 32px 0 4px;
+            font-size: 1.5rem;
+            font-weight: 600;
         }
 
         .modal-body .content h3 {
-            margin: 1.5em 0 0.8em;
-            font-size: 1.2rem;
+            margin: 24px 0 4px;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-body .content h4 {
+            margin: 16px 0 4px;
+            font-size: 1.1rem;
+            font-weight: 600;
         }
 
         .modal-body .content img {
@@ -478,11 +486,14 @@
 
         /* Notion 인용 (Quote) */
         .notion-quote {
-            border-left: 3px solid #B4956F;
-            padding-left: 16px;
-            margin: 20px 0;
-            font-style: italic;
-            color: #555;
+            border-left: 3px solid #333;
+            padding-left: 14px;
+            margin: 4px 0;
+            color: #333;
+        }
+
+        .notion-quote p {
+            margin: 2px 0;
         }
 
         /* Notion 콜아웃 (Callout) */
@@ -1180,19 +1191,24 @@
                     return `<h4 class="notion-h3">${renderRichText(value.rich_text)}</h4>`;
 
                 case 'quote':
-                    return `<blockquote class="notion-quote">${renderRichText(value.rich_text)}</blockquote>`;
+                    const quoteText = renderRichText(value.rich_text);
+                    const quoteChildren = block.children ? renderNotionBlocks(block.children) : '';
+                    return `<blockquote class="notion-quote">${quoteText}${quoteChildren}</blockquote>`;
 
                 case 'callout':
-                    const icon = value.icon?.emoji || value.icon?.external?.url ? `<img src="${value.icon.external.url}" class="callout-icon-img">` : '💡';
-                    const bgColor = value.color || 'gray_background';
-                    const iconHtml = typeof icon === 'string' && icon.startsWith('<img') ? icon : `<span class="callout-icon">${icon}</span>`;
-                    return `<div class="notion-callout notion-callout-${bgColor}">${iconHtml}<div>${renderRichText(value.rich_text)}</div></div>`;
+                    const calloutIcon = value.icon?.emoji || '💡';
+                    const calloutBgColor = value.color || 'gray_background';
+                    const calloutText = renderRichText(value.rich_text);
+                    const calloutChildren = block.children ? renderNotionBlocks(block.children) : '';
+                    return `<div class="notion-callout notion-callout-${calloutBgColor}"><span class="callout-icon">${calloutIcon}</span><div>${calloutText}${calloutChildren}</div></div>`;
 
                 case 'divider':
                     return `<hr class="notion-divider">`;
 
                 case 'toggle':
-                    return `<details class="notion-toggle"><summary>${renderRichText(value.rich_text)}</summary><div class="toggle-content"><!-- 하위 내용은 별도 API 호출 필요 --></div></details>`;
+                    const toggleText = renderRichText(value.rich_text);
+                    const toggleChildren = block.children ? renderNotionBlocks(block.children) : '';
+                    return `<details class="notion-toggle"><summary>${toggleText}</summary><div class="toggle-content">${toggleChildren}</div></details>`;
 
                 case 'image':
                     const imgCaption = value.caption?.[0]?.plain_text || '';
