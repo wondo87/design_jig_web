@@ -4488,7 +4488,7 @@
 
             document.getElementById('emptyState').style.display = 'none';
             document.getElementById('customerView').style.display = 'block';
-            document.getElementById('headerCustomerName').textContent = currentData.clientName || '고객명 없음';
+            document.getElementById('headerCustomerName').textContent = currentData.projectName || currentData.clientName || '고객명 없음';
             document.getElementById('headerCustomerId').textContent = currentCustomerId;
             loadCostData();
             loadEstimateData();
@@ -4498,8 +4498,9 @@
 
         function updateCustomerField(el) {
             currentData[el.dataset.field] = el.value;
-            if (el.dataset.field === 'clientName') {
-                document.getElementById('headerCustomerName').textContent = el.value || '고객명 없음';
+            if (el.dataset.field === 'clientName' || el.dataset.field === 'projectName') {
+                const displayName = currentData.projectName || currentData.clientName || '고객명 없음';
+                document.getElementById('headerCustomerName').textContent = displayName;
             }
             syncAllFields();
         }
@@ -4579,14 +4580,17 @@
                     if (c.status === 'as_done' && c.asEndDate) {
                         statusText = `A/S ~${c.asEndDate}`;
                     }
+                    const displayName = c.projectName || c.clientName || '이름 없음';
+                    const subInfo = c.projectName ? (c.clientName || '') : (c.clientPhone || '');
+
                     return `
                     <div class="customer-item ${c.customerId === currentCustomerId ? 'active' : ''}" onclick="selectCustomer('${c.customerId}')">
                         <div class="customer-item-header">
                             <span class="customer-item-id">${c.customerId}</span>
                             <span class="status-badge ${c.status}">${statusText}</span>
                         </div>
-                        <div class="customer-item-name">${c.clientName || '이름 없음'} <span style="font-size:10px; opacity:0.6; font-weight:normal;">${c.projectName ? '[' + c.projectName + ']' : ''}</span></div>
-                        <div class="customer-item-info">${c.clientPhone || ''}</div>
+                        <div class="customer-item-name" style="font-weight: 700;">${displayName}</div>
+                        <div class="customer-item-info">${subInfo}</div>
                     </div>
                 `}).join('');
             }
