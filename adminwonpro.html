@@ -2683,6 +2683,7 @@
                     <button class="customer-tab" onclick="showCustomerTab('estimate')">📝 계약견적서</button>
                     <button class="customer-tab" onclick="showCustomerTab('cost')">💰 원가관리표</button>
                     <button class="customer-tab" onclick="showCustomerTab('stats')">📈 통계</button>
+                    <button class="customer-tab" onclick="showCustomerTab('schedule')">📅 스케줄</button>
                 </div>
 
                 <!-- 고객정보 패널 -->
@@ -3196,6 +3197,51 @@
                         </div>
                         <div class="stat-card"><label>이익률</label>
                             <div class="value" id="statsRate">0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 스케줄 관리 패널 -->
+                <div class="tab-panel" id="panel-schedule">
+                    <div class="document-wrapper">
+                        <div class="doc-header">
+                            <div>
+                                <div
+                                    style="font-size:11px; font-weight:600; opacity:0.8; margin-bottom:4px; letter-spacing:1px;">
+                                    Design Jig</div>
+                                <h1>📅 공사 스케줄 관리</h1>
+                                <div class="subtitle">Construction Schedule Manager</div>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button class="btn btn-secondary btn-sm" onclick="addScheduleRow()">➕ 공정 추가</button>
+                                <button class="btn btn-primary btn-sm" onclick="syncScheduleToNotion()"
+                                    id="scheduleSyncBtn">📤 노션 동기화</button>
+                            </div>
+                        </div>
+                        <div class="doc-content">
+                            <div style="background:#f0f7ff; padding:12px 16px; border-radius:8px; margin-bottom:16px;">
+                                <strong>💡 사용법:</strong> 공정을 추가하고 날짜/담당자를 입력한 후 "노션 동기화" 버튼을 누르세요. 해당 고객의 스케줄이 노션
+                                데이터베이스에 저장됩니다.
+                            </div>
+                            <table class="data-table" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th style="width:40px;">No</th>
+                                        <th>공정명</th>
+                                        <th style="width:140px;">시작일</th>
+                                        <th style="width:140px;">종료일</th>
+                                        <th style="width:120px;">담당자</th>
+                                        <th style="width:50px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="scheduleTableBody">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                            <div id="scheduleEmptyState"
+                                style="text-align:center; padding:40px; color:#86868b; display:none;">
+                                추가된 공정이 없습니다. "공정 추가" 버튼을 눌러주세요.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -4063,6 +4109,130 @@
             event.target.classList.add('active');
             syncAllFields();
             if (tabId === 'estimate') updateEstimateFromCost();
+            if (tabId === 'schedule') loadScheduleForCustomer();
+        }
+
+        // ========== 스케줄 관리 기능 ==========
+        let scheduleRows = [];
+        const defaultScheduleSteps = [
+            { name: "디자인 상담", inCharge: "DESIGN JIG" },
+            { name: "민원 접수", inCharge: "DESIGN JIG" },
+            { name: "보존 상태", inCharge: "원프로" },
+            { name: "가구 철거", inCharge: "브라더" },
+            { name: "마루 철거", inCharge: "지오데크" },
+            { name: "일반 철거", inCharge: "최영규" }
+        ];
+
+        function loadScheduleForCustomer() {
+            // 고객 데이터에 저장된 스케줄 로드 또는 기본 스케줄
+            if (currentData.schedules && currentData.schedules.length > 0) {
+                scheduleRows = [...currentData.schedules];
+            } else if (scheduleRows.length === 0) {
+                // 첫 로드 시 기본 스케줄 세팅
+                defaultScheduleSteps.forEach(s => {
+                    scheduleRows.push({
+                        id: Date.now() + Math.random(),
+                        name: s.name,
+                        start: '',
+                        end: '',
+                        inCharge: s.inCharge
+                    });
+                });
+            }
+            renderScheduleTable();
+        }
+
+        function addScheduleRow(data = { name: '', start: '', end: '', inCharge: '' }) {
+            scheduleRows.push({
+                id: Date.now() + Math.random(),
+                ...data
+            });
+            renderScheduleTable();
+            saveScheduleToCustomer();
+        }
+
+        function removeScheduleRow(id) {
+            scheduleRows = scheduleRows.filter(r => r.id !== id);
+            renderScheduleTable();
+            saveScheduleToCustomer();
+        }
+
+        function updateScheduleRow(id, field, value) {
+            const row = scheduleRows.find(r => r.id === id);
+            if (row) {
+                row[field] = value;
+                saveScheduleToCustomer();
+            }
+        }
+
+        function saveScheduleToCustomer() {
+            currentData.schedules = [...scheduleRows];
+        }
+
+        function renderScheduleTable() {
+            const tbody = document.getElementById('scheduleTableBody');
+            const emptyState = document.getElementById('scheduleEmptyState');
+
+            if (!tbody) return;
+
+            if (scheduleRows.length === 0) {
+                tbody.innerHTML = '';
+                if (emptyState) emptyState.style.display = 'block';
+                return;
+            }
+
+            if (emptyState) emptyState.style.display = 'none';
+
+            tbody.innerHTML = scheduleRows.map((row, index) => `
+                <tr>
+                    <td style="text-align:center; color:#86868b;">${index + 1}</td>
+                    <td><input type="text" value="${row.name || ''}" onchange="updateScheduleRow(${row.id}, 'name', this.value)" placeholder="공정명" style="width:100%; border:none; background:transparent;"></td>
+                    <td><input type="date" value="${row.start || ''}" onchange="updateScheduleRow(${row.id}, 'start', this.value)" style="width:100%; border:none; background:transparent;"></td>
+                    <td><input type="date" value="${row.end || ''}" onchange="updateScheduleRow(${row.id}, 'end', this.value)" style="width:100%; border:none; background:transparent;"></td>
+                    <td><input type="text" value="${row.inCharge || ''}" onchange="updateScheduleRow(${row.id}, 'inCharge', this.value)" placeholder="담당자" style="width:100%; border:none; background:transparent;"></td>
+                    <td style="text-align:center;"><button onclick="removeScheduleRow(${row.id})" style="border:none; background:#ff3b30; color:white; width:24px; height:24px; border-radius:4px; cursor:pointer;">✕</button></td>
+                </tr>
+            `).join('');
+        }
+
+        async function syncScheduleToNotion() {
+            const projectName = currentData.projectName || currentData.clientName || '미지정 프로젝트';
+            const validSchedules = scheduleRows.filter(r => r.name && r.name.trim() !== '');
+
+            if (validSchedules.length === 0) {
+                showToast('동기화할 공정이 없습니다', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('scheduleSyncBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '⏳ 동기화 중...';
+
+            try {
+                const response = await fetch('/api/sync-schedule', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project: projectName,
+                        schedules: validSchedules
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast(`노션에 ${result.count}개의 일정이 등록되었습니다!`, 'success');
+                } else {
+                    throw new Error(result.message || '서버 응답 오류');
+                }
+            } catch (e) {
+                console.error('Schedule sync error:', e);
+                showToast(`동기화 실패: ${e.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
         }
 
         function syncAllFields() {
