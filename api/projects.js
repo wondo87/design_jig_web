@@ -1,7 +1,7 @@
 const { Client } = require("@notionhq/client");
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY || "ntn_W60962876671zXOYqiYKtlhW1IS8ort8H9fAhUekkeF3JY" });
-const PROJECT_DB_ID = "2d716b5df7b380e4a414c492cb1a346b"; // 현장 시공 사진 DB
+const SCHEDULE_DB_ID = "6b993a15bb2643979ceb382460ed7e77";
 
 module.exports = async (req, res) => {
     // CORS headers
@@ -14,28 +14,32 @@ module.exports = async (req, res) => {
     }
 
     try {
-        const response = await notion.databases.query({
-            database_id: PROJECT_DB_ID,
-            sorts: [
-                {
-                    property: "현장명",
-                    direction: "ascending",
-                },
-            ],
-        });
+        // Fetch database to get property options
+        const response = await notion.databases.retrieve({ database_id: SCHEDULE_DB_ID });
 
-        const projects = response.results.map(page => {
-            const titleProperty = page.properties["현장명"];
-            const name = titleProperty && titleProperty.title[0]
-                ? titleProperty.title[0].plain_text
-                : "이름 없음";
-            return {
-                id: page.id,
-                name: name
-            };
-        }).filter(p => p.name !== "이름 없음" && !p.name.includes("템플릿"));
+        const projectProp = response.properties["프로젝트"];
+        if (projectProp && projectProp.type === 'select') {
+            const projects = projectProp.select.options.map(opt => ({
+                id: opt.id,
+                name: opt.name
+            }));
+            return res.status(200).json({ success: true, projects });
+        } else {
+            // Fallback: search in Portfolio database if the select property is empty or missing
+            const portfolioDbId = "2d016b5df7b3804bb0e3f65399868e3d";
+            const portfolioResponse = await notion.databases.query({
+                database_id: portfolioDbId,
+                page_size: 100
+            });
 
-        res.status(200).json({ success: true, projects });
+            const projects = portfolioResponse.results.map(page => {
+                const nameProp = page.properties["이름"];
+                const name = nameProp && nameProp.title[0] ? nameProp.title[0].plain_text : "이름 없음";
+                return { id: page.id, name };
+            }).filter(p => p.name !== "이름 없음" && !p.name.includes("템플릿"));
+
+            return res.status(200).json({ success: true, projects });
+        }
     } catch (error) {
         console.error("Error fetching projects:", error);
         res.status(500).json({ success: false, message: error.message });
