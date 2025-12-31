@@ -1,7 +1,7 @@
 const { Client } = require("@notionhq/client");
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY || "ntn_W60962876671zXOYqiYKtlhW1IS8ort8H9fAhUekkeF3JY" });
-const PROJECT_DB_ID = "22bc2a12-1ce9-4ff2-8e17-1cf91bcdf3a8";
+const PROJECT_DB_ID = "2d716b5df7b380e4a414c492cb1a346b"; // 현장 시공 사진 DB
 
 module.exports = async (req, res) => {
     // CORS headers
