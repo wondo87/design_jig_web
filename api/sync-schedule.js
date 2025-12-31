@@ -5,7 +5,7 @@
 
 const { Client } = require("@notionhq/client");
 
-// Provided by user
+// Provided by user - Confirmed working key
 const NOTION_API_KEY = "ntn_W60962876671zXOYqiYKtlhW1IS8ort8H9fAhUekkeF3JY";
 const DATABASE_ID = "6b993a15bb2643979ceb382460ed7e77";
 
@@ -38,33 +38,47 @@ module.exports = async (req, res) => {
 
         for (const item of schedules) {
             // Create a new page in the construction schedule database
+            const properties = {
+                "공정명": {
+                    title: [{ text: { content: item.name || "미상의 공정" } }]
+                },
+                "프로젝트": {
+                    select: { name: project }
+                },
+                "시작-종료": item.start && item.end ? {
+                    date: {
+                        start: item.start,
+                        end: item.end
+                    }
+                } : undefined,
+                "담당자": {
+                    rich_text: [{ text: { content: item.inCharge || "" } }]
+                },
+                "비고": {
+                    rich_text: [{ text: { content: item.memo || "" } }]
+                }
+            };
+
+            // Add photo if exists
+            if (item.photoUrl) {
+                properties["사진"] = {
+                    files: [{
+                        name: "Field_Photo",
+                        type: "external",
+                        external: { url: item.photoUrl }
+                    }]
+                };
+            }
+
             const response = await notion.pages.create({
                 parent: { database_id: DATABASE_ID },
-                properties: {
-                    "공정명": {
-                        title: [{ text: { content: item.name || "미상의 공정" } }]
-                    },
-                    "프로젝트": {
-                        select: { name: project }
-                    },
-                    "시작-종료": item.start && item.end ? {
-                        date: {
-                            start: item.start,
-                            end: item.end
-                        }
-                    } : undefined,
-                    "담당자": {
-                        rich_text: [{ text: { content: item.inCharge || "" } }]
-                    },
-                    "비고": {
-                        rich_text: [{ text: { content: item.memo || "" } }]
-                    }
-                }
+                properties: properties
             });
             results.push(response.id);
         }
 
         return res.status(200).json({
+            success: true,
             message: "Successfully synced to Notion",
             count: results.length,
             pageIds: results
