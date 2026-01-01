@@ -265,6 +265,59 @@
             display: flex;
         }
 
+        /* 휴지통 모달 */
+        .trash-modal-content {
+            background: #fff;
+            padding: 24px;
+            border-radius: 14px;
+            width: 500px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .trash-list {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #e8e8ed;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .trash-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #f5f5f7;
+        }
+
+        .trash-item:last-child {
+            border-bottom: none;
+        }
+
+        .trash-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* 접근 제한 오버레이 (고객별) */
+        .access-denied-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 500;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
         .admin-modal-content {
             background: #fff;
             border-radius: 16px;
@@ -2211,6 +2264,80 @@
             }
         }
 
+        /* 로그인 오버레이 (강제 로그인) */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f5f5f7;
+            z-index: 9998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .login-card {
+            background: #fff;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            width: 360px;
+            text-align: center;
+        }
+
+        .login-logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0071e3;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: #86868b;
+            margin-bottom: 30px;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            font-size: 14px;
+            background: #fbfbfd;
+            transition: all 0.2s;
+        }
+
+        .login-input:focus {
+            background: #fff;
+            border-color: #0071e3;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+        }
+
+        .login-btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #0071e3;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        .login-btn-primary:hover {
+            background: #0077ed;
+        }
+
         @media print {
             * {
                 -webkit-print-color-adjust: exact !important;
@@ -2626,6 +2753,23 @@
         </div>
     </div>
 
+    <!-- 휴지통 모달 -->
+    <div class="admin-modal" id="trashModal">
+        <div class="trash-modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="margin:0;">🗑️ 휴지통</h3>
+                <button onclick="closeTrashModal()"
+                    style="border:none; background:none; cursor:pointer; font-size:18px;">✕</button>
+            </div>
+            <div id="trashList" class="trash-list">
+                <!-- 삭제된 항목 표시 -->
+            </div>
+            <div style="font-size:12px; color:#86868b; margin-top:10px;">
+                * 영구 삭제 시 복구할 수 없습니다.
+            </div>
+        </div>
+    </div>
+
     <!-- 메인 레이아웃 -->
     <div class="main-layout">
         <!-- 사이드바: 고객 목록 -->
@@ -2681,6 +2825,13 @@
                 <span>전체 통계 대시보드</span>
                 <span class="stats-arrow">→</span>
             </div>
+            <!-- 휴지통 버튼 (메인관리자 전용) -->
+            <div class="sidebar-stats-btn" id="trashBtn" onclick="showTrashModal()"
+                style="display:none; margin-top:10px; background:#fff0f0; border-color:#ffcccc;">
+                <span>🗑️</span>
+                <span style="color:#ff3b30;">휴지통</span>
+                <span class="stats-arrow" style="color:#ff3b30;">→</span>
+            </div>
         </div>
 
         <!-- 메인 컨텐츠 -->
@@ -2694,7 +2845,19 @@
             </div>
 
             <!-- 고객 상세 뷰 -->
-            <div id="customerView" style="display:none;">
+            <div id="customerView" style="display:none; position:relative;">
+                <!-- 접근 제한 오버레이 -->
+                <div id="accessDeniedOverlay" class="access-denied-overlay">
+                    <div style="font-size:48px; margin-bottom:16px;">🔒</div>
+                    <h3 style="margin-bottom:10px;">접근이 제한된 고객입니다</h3>
+                    <p style="color:#86868b; margin-bottom:24px;">이 고객 정보에 접근하려면 비밀번호가 필요합니다</p>
+                    <div style="display:flex; gap:8px;">
+                        <input type="password" id="lockedPasswordInput" class="login-input"
+                            style="width:200px; margin:0;" placeholder="비밀번호 입력"
+                            onkeypress="if(event.key==='Enter')unlockCustomerAccess()">
+                        <button class="btn btn-primary" onclick="unlockCustomerAccess()">확인</button>
+                    </div>
+                </div>
                 <!-- 고객 헤더 -->
                 <div class="customer-header-bar">
                     <div class="customer-header-left">
@@ -4014,11 +4177,105 @@
         }
 
         function isMainAdmin() {
-            return currentAdmin?.role === 'main';
+            return currentAdmin && currentAdmin.role === 'main';
         }
 
-        function canDelete() {
-            return currentAdmin?.role === 'main';
+        function isCreator(customer) {
+            if (!currentAdmin) return false;
+            // Legacy support: if no createdBy, default to Main Admin
+            if (!customer.createdBy) return isMainAdmin();
+            return customer.createdBy === currentAdmin.id;
+        }
+
+        function canEdit(customer) {
+            if (!customer) customer = currentData;
+            if (!currentAdmin) return false;
+            if (isMainAdmin()) return true;
+            if (customer.isLocked && !customer.unlockedForSession) return false;
+            return isCreator(customer);
+        }
+
+        function canDelete(customer) {
+            return canEdit(customer);
+        }
+
+        function isCustomerLocked() {
+            if (!currentData || !currentData.isLocked) return false;
+            if (isMainAdmin()) return false;
+            if (currentData.unlockedForSession) return false;
+            return true;
+        }
+
+        function unlockCustomerAccess() {
+            const pw = document.getElementById('lockedPasswordInput').value;
+            if (pw === '6454') {
+                currentData.unlockedForSession = true;
+                document.getElementById('accessDeniedOverlay').style.display = 'none';
+                showToast('접근이 허용되었습니다', 'success');
+                document.getElementById('lockedPasswordInput').value = '';
+            } else {
+                showToast('비밀번호가 일치하지 않습니다', 'error');
+            }
+        }
+
+        function showTrashModal() {
+            if (!isMainAdmin()) {
+                showToast('메인관리자만 접근 가능합니다', 'error');
+                return;
+            }
+            const trashItems = customers.filter(c => c.status === 'trash');
+            const listEl = document.getElementById('trashList');
+            listEl.innerHTML = '';
+            if (trashItems.length === 0) {
+                listEl.innerHTML = '<div style="padding:20px; text-align:center; color:#86868b;">휴지통이 비었습니다</div>';
+            } else {
+                trashItems.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = 'trash-item';
+                    div.innerHTML = `
+                        <div>
+                            <div style="font-weight:600;">${c.clientName || '(이름없음)'}</div>
+                            <div style="font-size:11px; color:#86868b;">
+                                삭제: ${c.deletedAt?.split('T')[0] || '-'} (${c.deletedBy || '?'})
+                            </div>
+                        </div>
+                        <div class="trash-actions">
+                            <button onclick="restoreCustomer('${c.customerId}')" style="padding:4px 8px; border:1px solid #ddd; background:#fff; border-radius:4px; font-size:11px; cursor:pointer;">복원</button>
+                            <button onclick="permanentDeleteCustomer('${c.customerId}')" style="padding:4px 8px; border:1px solid #ff3b30; background:#ff3b30; color:#fff; border-radius:4px; font-size:11px; cursor:pointer;">영구삭제</button>
+                        </div>
+                    `;
+                    listEl.appendChild(div);
+                });
+            }
+            document.getElementById('trashModal').classList.add('show');
+        }
+
+        function closeTrashModal() {
+            document.getElementById('trashModal').classList.remove('show');
+        }
+
+        function restoreCustomer(id) {
+            const index = customers.findIndex(c => c.customerId === id);
+            if (index !== -1) {
+                customers[index].status = 'consulting';
+                delete customers[index].deletedAt;
+                delete customers[index].deletedBy;
+                saveCustomers();
+                showToast('고객이 복원되었습니다', 'success');
+                showTrashModal();
+                updateCustomerList();
+            }
+        }
+
+        function permanentDeleteCustomer(id) {
+            if (!confirm('정말로 영구 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+            const index = customers.findIndex(c => c.customerId === id);
+            if (index !== -1) {
+                customers.splice(index, 1);
+                saveCustomers();
+                showToast('영구 삭제되었습니다', 'success');
+                showTrashModal();
+            }
         }
 
         function canWrite() {
@@ -4142,6 +4399,36 @@
             showToast(`관리자 '${removed.id}' 삭제됨`, 'success');
         }
 
+        // 오버레이 로그인 처리
+        function performLogin() {
+            const inputId = document.getElementById('loginId').value.trim();
+            const inputPw = document.getElementById('loginPw').value;
+
+            // 메인관리자 확인
+            if (inputId === MAIN_ADMIN.id && inputPw === MAIN_ADMIN.password) {
+                currentAdmin = { id: MAIN_ADMIN.id, role: 'main' };
+                document.getElementById('loginOverlay').style.display = 'none';
+                activateAdminMode();
+                showToast('메인관리자로 로그인되었습니다', 'success');
+                return;
+            }
+
+            // 일반관리자 확인
+            const admins = getRegularAdmins();
+            const found = admins.find(a => a.id === inputId && a.password === inputPw);
+            if (found) {
+                currentAdmin = { id: found.id, role: 'regular' };
+                document.getElementById('loginOverlay').style.display = 'none';
+                activateAdminMode();
+                showToast('관리자로 로그인되었습니다', 'success');
+                return;
+            }
+
+            showToast('아이디 또는 비밀번호가 틀렸습니다', 'error');
+            document.getElementById('loginPw').value = '';
+            document.getElementById('loginPw').focus();
+        }
+
         // 관리자 로그인
         function loginAdmin() {
             const inputId = document.getElementById('adminId').value.trim();
@@ -4193,6 +4480,12 @@
 
             document.getElementById('adminStatus').innerHTML = statusHTML;
 
+            // 휴지통 버튼 (메인관리자 전용)
+            const trashBtn = document.getElementById('trashBtn');
+            if (trashBtn) {
+                trashBtn.style.display = isMainAdmin() ? 'flex' : 'none';
+            }
+
             // 원가관리표 잠금 해제
             document.getElementById('costLockOverlay').style.display = 'none';
             document.getElementById('costCategoriesWrapper').classList.remove('cost-locked');
@@ -4236,18 +4529,24 @@
         function logoutAdmin() {
             currentAdmin = null;
 
-            // UI 업데이트
-            document.getElementById('adminStatus').innerHTML = `
-                <span class="admin-badge viewer" id="adminBadge">👁 열람 모드</span>
-                <button class="admin-login-btn" onclick="showAdminModal()">🔐 관리자 로그인</button>
-            `;
+            // 로그인 오버레이 표시
+            const overlay = document.getElementById('loginOverlay');
+            if (overlay) {
+                overlay.style.display = 'flex';
+                document.getElementById('loginId').value = '';
+                document.getElementById('loginPw').value = '';
+                document.getElementById('loginId').focus();
+            }
+
+            // UI 초기화 (필요시)
+            document.getElementById('adminStatus').innerHTML = '';
 
             // 원가관리표 잠금
             document.getElementById('costLockOverlay').style.display = 'flex';
             document.getElementById('costCategoriesWrapper').classList.add('cost-locked');
             document.getElementById('adminSettings').style.display = 'none';
 
-            // 탭 가시성 업데이트 (열람 모드에서는 모든 탭 표시)
+            // 탭 가시성 업데이트
             updateTabVisibility();
 
             showToast('로그아웃되었습니다', 'success');
@@ -4268,18 +4567,14 @@
         }
 
         // 잠금 상태 체크
-        function isCustomerLocked() {
-            return currentData?.isLocked === true;
-        }
-
         // 잠금 UI 업데이트
         function updateLockUI() {
             const lockBtn = document.getElementById('lockToggleBtn');
             const createdBySpan = document.getElementById('headerCreatedBy');
 
             if (lockBtn) {
-                lockBtn.textContent = currentData?.isLocked ? '🔒' : '🔓';
-                lockBtn.title = currentData?.isLocked ? '잠금 해제' : '잠금 설정';
+                lockBtn.textContent = (currentData && currentData.isLocked) ? '🔒' : '🔓';
+                lockBtn.title = (currentData && currentData.isLocked) ? '잠금 해제' : '잠금 설정';
             }
 
             if (createdBySpan) {
@@ -4289,48 +4584,25 @@
 
         // 잠금 토글
         function toggleCustomerLock() {
-            if (!isLoggedIn()) {
-                showToast('관리자 로그인이 필요합니다', 'error');
-                showAdminModal();
+            if (!currentCustomerId) return;
+
+            // Only Main Admin can toggle
+            if (!isMainAdmin()) {
+                showToast('메인관리자만 잠금 상태를 변경할 수 있습니다', 'error');
                 return;
             }
 
-            if (!currentCustomerId) {
-                showToast('고객을 먼저 선택하세요', 'error');
-                return;
+            currentData.isLocked = !currentData.isLocked;
+            // Clear session unlock if re-locking
+            if (currentData.isLocked) {
+                delete currentData.unlockedForSession;
             }
 
-            // 현재 잠금 상태
-            const isLocked = currentData?.isLocked === true;
-
-            if (isLocked) {
-                // 잠금 해제 시 비밀번호 필요
-                showDeletePasswordModal(() => {
-                    currentData.isLocked = false;
-                    updateLockUI();
-                    updateCustomerList();
-                    // localStorage에 저장
-                    const idx = customers.findIndex(c => c.customerId === currentCustomerId);
-                    if (idx >= 0) {
-                        customers[idx].isLocked = false;
-                        localStorage.setItem('dz_customers', JSON.stringify(customers));
-                    }
-                    showToast('잠금이 해제되었습니다', 'success');
-                });
-            } else {
-                // 잠금 설정
-                currentData.isLocked = true;
-                updateLockUI();
-                updateCustomerList();
-                // localStorage에 저장
-                const idx = customers.findIndex(c => c.customerId === currentCustomerId);
-                if (idx >= 0) {
-                    customers[idx].isLocked = true;
-                    localStorage.setItem('dz_customers', JSON.stringify(customers));
-                }
-                showToast('잠금이 설정되었습니다', 'success');
-            }
+            saveCustomers();
+            updateLockUI();
+            showToast(currentData.isLocked ? '고객 정보가 잠금 처리되었습니다' : '잠금이 해제되었습니다', 'success');
         }
+
 
         // 글씨 크기 조절
         function changeFontSize(size) {
@@ -4656,6 +4928,24 @@
             if (!customer) return;
             currentCustomerId = customerId;
             currentData = { ...customer };
+
+            // 접근 제한 확인
+            if (document.getElementById('accessDeniedOverlay')) {
+                const isLocked = isCustomerLocked();
+                document.getElementById('accessDeniedOverlay').style.display = isLocked ? 'flex' : 'none';
+                if (isLocked) {
+                    document.getElementById('lockedPasswordInput').value = '';
+                }
+            }
+
+            // 권한에 따른 입력 비활성화 (본인 작성 건만 수정 가능)
+            const editable = canEdit();
+            document.querySelectorAll('.customer-field, #customerStatus').forEach(el => {
+                el.disabled = !editable;
+            });
+            const delBtn = document.querySelector('.delete-btn');
+            if (delBtn) delBtn.style.visibility = (editable && !isCustomerLocked()) ? 'visible' : 'hidden';
+
             document.querySelectorAll('.customer-field').forEach(f => {
                 f.value = currentData[f.dataset.field] || '';
             });
@@ -4721,34 +5011,40 @@
         }
 
         function deleteCurrentCustomer() {
-            if (!isLoggedIn()) {
-                showToast('관리자 로그인이 필요합니다', 'error');
-                showAdminModal();
-                return;
-            }
-
-            // 일반관리자는 삭제 비밀번호 필요
-            if (!canDelete()) {
-                showDeletePasswordModal(() => {
-                    performDeleteCustomer();
-                });
-                return;
-            }
-
-            if (!confirm('이 고객을 삭제하시겠습니까?')) return;
-            performDeleteCustomer();
-        }
-
-        function performDeleteCustomer() {
             if (!currentCustomerId) return;
-            customers = customers.filter(c => c.customerId !== currentCustomerId);
-            localStorage.setItem('dz_customers', JSON.stringify(customers));
-            currentCustomerId = null;
-            currentData = {};
-            document.getElementById('emptyState').style.display = 'block';
-            document.getElementById('customerView').style.display = 'none';
-            updateCustomerList();
-            showToast('고객이 삭제되었습니다', 'success');
+
+            // 1. Permission check
+            if (!canDelete()) {
+                showToast('삭제 권한이 없습니다 (본인 작성 건만 삭제 가능)', 'error');
+                return;
+            }
+
+            // 2. Lock check
+            if (isCustomerLocked()) {
+                showToast('잠금 설정된 고객입니다. 메인관리자에게 문의하세요.', 'error');
+                return;
+            }
+
+            // 3. Confirm Soft Delete
+            if (!confirm('휴지통으로 이동하시겠습니까? (복구는 메인관리자만 가능합니다)')) return;
+
+            // 4. Perform Soft Delete (Trash)
+            const index = customers.findIndex(c => c.customerId === currentCustomerId);
+            if (index !== -1) {
+                customers[index].status = 'trash';
+                customers[index].deletedAt = new Date().toISOString();
+                customers[index].deletedBy = currentAdmin.id;
+
+                saveCustomers();
+                showToast('휴지통으로 이동되었습니다', 'success');
+
+                // Reset View
+                currentCustomerId = null;
+                currentData = {};
+                document.getElementById('emptyState').style.display = 'block';
+                document.getElementById('customerView').style.display = 'none';
+                updateCustomerList();
+            }
         }
 
         function updateCustomerList() {
@@ -4758,6 +5054,9 @@
             const monthFilter = document.getElementById('monthFilter').value;
 
             let filtered = customers.filter(c => {
+                // 휴지통 항목 제외
+                if (c.status === 'trash') return false;
+
                 const matchSearch = [c.clientName, c.clientPhone, c.siteAddress, c.projectName].join(' ').toLowerCase().includes(searchTerm);
                 const matchStatus = currentStatusFilter === 'all' || c.status === currentStatusFilter;
 
@@ -6303,6 +6602,20 @@
             circle.style.background = `conic-gradient(#34c759 0%, #34c759 ${rate}%, #e8e8ed ${rate}%, #e8e8ed 100%)`;
         }
     </script>
+    <!-- 로그인 오버레이 (최우선 표시) -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-card">
+            <div class="login-logo">Design Jig</div>
+            <div class="login-subtitle">통합 관리 시스템</div>
+            <input type="text" class="login-input" id="loginId" placeholder="아이디" autocomplete="username">
+            <input type="password" class="login-input" id="loginPw" placeholder="비밀번호" autocomplete="current-password"
+                onkeypress="if(event.key==='Enter') performLogin()">
+            <button class="login-btn-primary" onclick="performLogin()">로그인</button>
+        </div>
+        <div style="margin-top: 20px; font-size: 11px; color: #a1a1a6;">
+            Unauthorized access is strictly prohibited.
+        </div>
+    </div>
 </body>
 
 </html>
