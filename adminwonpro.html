@@ -4598,6 +4598,12 @@
                 delete currentData.unlockedForSession;
             }
 
+            // Sync back to customers array
+            const idx = customers.findIndex(c => c.customerId === currentCustomerId);
+            if (idx !== -1) {
+                customers[idx].isLocked = currentData.isLocked;
+            }
+
             saveCustomers();
             updateLockUI();
             showToast(currentData.isLocked ? '고객 정보가 잠금 처리되었습니다' : '잠금이 해제되었습니다', 'success');
@@ -4850,6 +4856,7 @@
             saveScheduleToCustomer();
         }
 
+
         function syncAllFields() {
             document.querySelectorAll('.synced-input').forEach(field => {
                 field.value = currentData[field.dataset.sync] || '';
@@ -4861,6 +4868,10 @@
             if (rep) {
                 document.querySelectorAll('.company-sync').forEach(f => f.value = rep.value);
             }
+        }
+
+        function saveCustomers() {
+            localStorage.setItem('dz_customers', JSON.stringify(customers));
         }
 
         function newCustomer() {
