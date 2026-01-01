@@ -2647,6 +2647,30 @@
                 white-space: nowrap;
             }
         }
+
+        /* 잠금 토글 버튼 */
+        .lock-toggle-btn {
+            border: none;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .lock-toggle-btn.unlocked {
+            background-color: #e5f9e7;
+            color: #34c759;
+        }
+
+        .lock-toggle-btn.locked {
+            background-color: #ffe5e5;
+            color: #ff3b30;
+        }
     </style>
 </head>
 
@@ -2865,8 +2889,7 @@
                         <div style="display:flex;align-items:center;gap:8px;">
                             <div class="customer-id-display" id="headerCustomerId">DJ-000000</div>
                             <button id="lockToggleBtn" onclick="toggleCustomerLock()"
-                                style="background:none;border:none;cursor:pointer;font-size:18px;padding:0;"
-                                title="잠금 토글">🔓</button>
+                                class="lock-toggle-btn unlocked">🔓 열림</button>
                             <span id="headerCreatedBy" style="font-size:10px;color:#86868b;">📝 -</span>
                         </div>
                     </div>
@@ -4573,8 +4596,10 @@
             const createdBySpan = document.getElementById('headerCreatedBy');
 
             if (lockBtn) {
-                lockBtn.textContent = (currentData && currentData.isLocked) ? '🔒' : '🔓';
-                lockBtn.title = (currentData && currentData.isLocked) ? '잠금 해제' : '잠금 설정';
+                const isLocked = currentData && currentData.isLocked;
+                lockBtn.className = 'lock-toggle-btn ' + (isLocked ? 'locked' : 'unlocked');
+                lockBtn.innerHTML = isLocked ? '🔒 잠금' : '🔓 열림';
+                lockBtn.title = isLocked ? '잠금 해제' : '잠금 설정';
             }
 
             if (createdBySpan) {
