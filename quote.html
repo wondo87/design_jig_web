@@ -633,6 +633,12 @@
             const data = {};
             formData.forEach((value, key) => data[key] = value);
 
+            // 삭제된 필드는 빈 값으로 전송 (Google Sheet 호환성 유지)
+            data.type = data.type || '';
+            data.size = data.size || '';
+            data.budget = data.budget || '';
+            data.message = '설문 링크 발송 예정';
+
             // 구글 시트로 전송
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
