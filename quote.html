@@ -432,6 +432,44 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Notice Box Styles */
+        .notice-box {
+            background: #f8f6f3;
+            border-left: 4px solid #B4956F;
+            padding: 24px;
+            border-radius: 8px;
+            margin: 24px 0;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        .notice-box p {
+            margin: 4px 0;
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        .notice-box strong {
+            color: #B4956F;
+        }
+
+        .notice-highlight {
+            margin-top: 12px !important;
+            color: #1a1a1a !important;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .notice-box {
+                padding: 20px 16px;
+                text-align: left;
+            }
+
+            .notice-box p {
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 
@@ -481,25 +519,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label>이메일</label>
-                    <input type="email" name="email" placeholder="example@email.com">
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>공사 유형 <span class="required">*</span></label>
-                        <select name="type" required>
-                            <option value="">선택해주세요</option>
-                            <option value="full">전체 인테리어</option>
-                            <option value="partial">부분 인테리어</option>
-                            <option value="remodel">리모델링</option>
-                            <option value="other">기타</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>예상 평수</label>
-                        <input type="text" name="size" placeholder="예: 32평">
-                    </div>
+                    <label>이메일 <span class="required">*</span></label>
+                    <input type="email" name="email" required placeholder="example@email.com">
                 </div>
 
                 <div class="form-group">
@@ -507,22 +528,11 @@
                     <input type="text" name="location" placeholder="예: 용인시 수지구 ○○아파트">
                 </div>
 
-                <div class="form-group">
-                    <label>예상 예산</label>
-                    <select name="budget">
-                        <option value="">선택해주세요</option>
-                        <option value="~3000">3,000만원 이하</option>
-                        <option value="3000~5000">3,000 ~ 5,000만원</option>
-                        <option value="5000~7000">5,000 ~ 7,000만원</option>
-                        <option value="7000~1억">7,000만원 ~ 1억</option>
-                        <option value="1억~">1억 이상</option>
-                        <option value="미정">미정 / 상담 후 결정</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>문의 내용 <span class="required">*</span></label>
-                    <textarea name="message" required placeholder="공사 내용, 희망 일정, 궁금한 점 등을 자유롭게 작성해주세요."></textarea>
+                <div class="notice-box">
+                    <p>간단한 정보만 먼저 접수한 뒤,</p>
+                    <p>고객님의 공간과 취향에 맞춘</p>
+                    <p><strong>맞춤 상담 설문</strong>을 안내드리고 있습니다.</p>
+                    <p class="notice-highlight">설문 완료 시 보다 정확한 상담이 가능합니다.</p>
                 </div>
 
                 <div class="form-group privacy-consent">
@@ -634,7 +644,7 @@
             })
                 .then(() => {
                     // 성공 간주 (no-cors라 응답 상태 확인 불가하므로 성공으로 처리)
-                    alert('문의가 접수되었습니다.\n빠른 시일 내에 연락드리겠습니다.');
+                    alert('문의 감사합니다.\n\n고객님께 맞는 상담을 위해\n이메일로 간단한 설문 링크를 보내드렸습니다.\n설문 작성 후 순차적으로 상담을 도와드리겠습니다.');
                     form.reset();
                 })
                 .catch(err => {
