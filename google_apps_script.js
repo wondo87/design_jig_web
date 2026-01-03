@@ -3,7 +3,7 @@
  * 
  * [기능]
  * 1. 고객 문의 접수 → Google Sheets 저장
- * 2. 고객에게 자동으로 설문 링크 이메일 발송 (이름, 연락처, 이메일, 주소 자동 입력)
+ * 2. 고객에게 자동으로 설문 링크 이메일 발송 (이름, 연락처, 이메일, 주소, 문의내용 자동 입력)
  */
 
 // ========== 설정 영역 ==========
@@ -15,7 +15,8 @@ const ENTRY_IDS = {
     NAME: '2076163714',
     PHONE: '217138793',
     EMAIL: '916215270',
-    ADDRESS: '840428259'
+    ADDRESS: '840428259',
+    MESSAGE: '1360575573' // [추가됨] 문의내용 ID
 };
 
 // 발신자 이름
@@ -85,7 +86,8 @@ function sendSurveyEmail(data) {
         'entry.' + ENTRY_IDS.NAME + '=' + encodeURIComponent(customerName),
         'entry.' + ENTRY_IDS.PHONE + '=' + encodeURIComponent(data.phone || ''),
         'entry.' + ENTRY_IDS.EMAIL + '=' + encodeURIComponent(data.email || ''),
-        'entry.' + ENTRY_IDS.ADDRESS + '=' + encodeURIComponent(data.location || '')
+        'entry.' + ENTRY_IDS.ADDRESS + '=' + encodeURIComponent(data.location || ''),
+        'entry.' + ENTRY_IDS.MESSAGE + '=' + encodeURIComponent(data.message || '') // [추가됨] 문의내용 자동입력
     ];
 
     var finalSurveyUrl = FORM_BASE_URL + '?' + params.join('&');
@@ -109,7 +111,7 @@ function sendSurveyEmail(data) {
     <div class="container">
         <p><strong>DESIGN JIG</strong></p>
         <br>
-        <p>안녕하세요, <strong>${customerName}</strong> 님.<br>
+        <p>안녕하세요, <strong>\${customerName}</strong> 님.<br>
         디자인지그에 문의해 주셔서 감사합니다.</p>
         <br>
         <p>디자인지그는<br>
@@ -124,7 +126,7 @@ function sendSurveyEmail(data) {
         <br>
         <p>아래 링크를 클릭하시면 <strong>기본 정보가 자동으로 입력되어 있습니다.</strong></p>
         <p>
-            <a href="${finalSurveyUrl}">▶ 사전 설문 작성하기</a><br>
+            <a href="\${finalSurveyUrl}">▶ 사전 설문 작성하기</a><br>
             (약 2~3분 소요)
         </p>
         <br>
@@ -148,7 +150,7 @@ function sendSurveyEmail(data) {
     var plainTextBody = `
 DESIGN JIG
 
-안녕하세요, ${customerName} 님.
+안녕하세요, \${customerName} 님.
 디자인지그에 문의해 주셔서 감사합니다.
 
 디자인지그는
@@ -164,7 +166,7 @@ DESIGN JIG
 아래 링크를 클릭하시면 기본 정보가 자동으로 입력되어 있습니다.
 
 ▶ 사전 설문 작성하기
-${finalSurveyUrl}
+\${finalSurveyUrl}
 (약 2~3분 소요)
 
 설문 작성 후 확인되는 대로
