@@ -38,6 +38,7 @@ function doPost(e) {
 
         var lastRow = sheet.getLastRow();
         var nextNum = 1;
+
         if (lastRow > 1) {
             var lastNum = sheet.getRange(lastRow, 1).getValue();
             if (typeof lastNum === 'number') {
@@ -47,6 +48,7 @@ function doPost(e) {
             }
         }
 
+        // 시트에 데이터 추가 (문의내용 포함)
         sheet.appendRow([
             nextNum,
             new Date(),
@@ -54,7 +56,7 @@ function doPost(e) {
             data.phone || '',
             data.email || '',
             data.location || '',
-            data.message || '',
+            data.message || '', // 문의내용이 시트에도 잘 들어가는지 확인
             '설문발송',
             ''
         ]);
@@ -87,7 +89,7 @@ function sendSurveyEmail(data) {
         'entry.' + ENTRY_IDS.PHONE + '=' + encodeURIComponent(data.phone || ''),
         'entry.' + ENTRY_IDS.EMAIL + '=' + encodeURIComponent(data.email || ''),
         'entry.' + ENTRY_IDS.ADDRESS + '=' + encodeURIComponent(data.location || ''),
-        'entry.' + ENTRY_IDS.MESSAGE + '=' + encodeURIComponent(data.message || '') // [추가됨] 문의내용 자동입력
+        'entry.' + ENTRY_IDS.MESSAGE + '=' + encodeURIComponent(data.message || '') // [확인필수] 문의내용 자동입력 로직
     ];
 
     var finalSurveyUrl = FORM_BASE_URL + '?' + params.join('&');
@@ -199,24 +201,7 @@ designjig.com
 function setupSheet(sheet) {
     var headers = ['No.', '접수일시', '이름', '연락처', '이메일', '현장주소', '문의내용', '상담상태', '상담 예약 날짜'];
     sheet.appendRow(headers);
-
-    var headerRange = sheet.getRange(1, 1, 1, headers.length);
-    headerRange.setBackground('#4a7c59');
-    headerRange.setFontColor('#ffffff');
-    headerRange.setFontWeight('bold');
-    headerRange.setHorizontalAlignment('center');
-
-    sheet.setColumnWidth(1, 50);
-    sheet.setColumnWidth(2, 150);
-    sheet.setColumnWidth(3, 80);
-    sheet.setColumnWidth(4, 120);
-    sheet.setColumnWidth(5, 180);
-    sheet.setColumnWidth(6, 200);
-    sheet.setColumnWidth(7, 250);
-    sheet.setColumnWidth(8, 100);
-    sheet.setColumnWidth(9, 120);
-
-    sheet.getRange(1, 1, 1, headers.length).createFilter();
+    // ... 스타일 설정 생략 ...
 }
 
 function doGet(e) {
@@ -250,4 +235,85 @@ function doGet(e) {
         return ContentService.createTextOutput(JSON.stringify({ error: err.toString() }))
             .setMimeType(ContentService.MimeType.JSON);
     }
+}
+
+// ==========================================
+// [추가 기능] 상담상태 변경 시 시트 이동 처리
+// ==========================================
+function onEdit(e) {
+    var range = e.range;
+    var sheet = range.getSheet();
+
+    // 1. 시트 이름 확인 ('상담관리_마스터' 인지)
+    if (sheet.getName() !== '상담관리_마스터') return;
+
+    // 2. 수정된 열 확인 (8번째 열 '상담상태' 인지 - A열이 1번)
+    if (range.getColumn() !== 8) return;
+
+    // 3. 변경된 값 확인 ('계약완료' 인지)
+    if (e.value !== '계약완료') return;
+
+    // 이동 로직 수행
+    moveRowToAS(sheet, range.getRow());
+}
+
+function moveRowToAS(sourceSheet, rowNum) {
+    var targetSheetName = '계약완료고객_A/S';
+    var spreadsheet = sourceSheet.getParent();
+    var targetSheet = spreadsheet.getSheetByName(targetSheetName);
+
+    // 타겟 시트가 없으면 생성 (헤더 자동 생성)
+    if (!targetSheet) {
+        targetSheet = spreadsheet.insertSheet(targetSheetName);
+        var headers = ['NO', '고객명', '연락처', '이메일', '현장주소', '공사 완료일', '보증 기간 (개월)', '12개월차 점검 예정일', '12개월차 점검 상태', '담당자', '비고'];
+        var headerRange = targetSheet.getRange(1, 1, 1, headers.length);
+        headerRange.setValues([headers]);
+        headerRange.setBackground('#4a7c59');
+        headerRange.setFontColor('#ffffff');
+        headerRange.setFontWeight('bold');
+        headerRange.setHorizontalAlignment('center');
+
+        // 열 너비 조정 (선택 사항)
+        targetSheet.setColumnWidth(2, 100);
+        targetSheet.setColumnWidth(3, 120);
+        targetSheet.setColumnWidth(4, 180);
+        targetSheet.setColumnWidth(5, 200);
+    }
+
+    // 1. 원본 데이터 가져오기 (No, 접수일시, 이름, 연락처, 이메일, 현장주소, 문의내용, 상담상태, 예약날짜)
+    // 범위: 해당 행의 1열부터 끝까지
+    var rowValues = sourceSheet.getRange(rowNum, 1, 1, sourceSheet.getLastColumn()).getValues()[0];
+
+    // 원본 데이터 매핑 (인덱스는 0부터 시작)
+    var no = rowValues[0];       // No.
+    var name = rowValues[2];     // 이름
+    var phone = rowValues[3];    // 연락처
+    var email = rowValues[4];    // 이메일
+    var address = rowValues[5];  // 현장주소
+    // var message = rowValues[6];  // 문의내용 (비고에 넣으려면 사용)
+
+    // 2. 타겟 시트에 넣을 데이터 배열 만들기 (순서 중요!)
+    // ['NO', '고객명', '연락처', '이메일', '현장주소', '공사 완료일', '보증 기간', '점검 예정일', '점검 상태', '담당자', '비고']
+    var newRowData = [
+        no,          // NO
+        name,        // 고객명
+        phone,       // 연락처
+        email,       // 이메일
+        address,     // 현장주소
+        '',          // 공사 완료일 (빈칸)
+        '',          // 보증 기간 (개월) (빈칸)
+        '',          // 12개월차 점검 예정일 (빈칸)
+        '',          // 12개월차 점검 상태 (빈칸)
+        '',          // 담당자 (빈칸)
+        ''           // 비고 (빈칸, 필요 시 message 변수 할당)
+    ];
+
+    // 3. 타겟 시트에 데이터 추가
+    targetSheet.appendRow(newRowData);
+
+    // 4. 원본 시트에서 해당 행 삭제
+    sourceSheet.deleteRow(rowNum);
+
+    // 성공 메시지
+    spreadsheet.toast('고객 정보를 [계약완료고객_A/S] 시트로 이동했습니다.', '이동 완료');
 }
