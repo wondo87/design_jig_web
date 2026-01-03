@@ -50,15 +50,15 @@ function doPost(e) {
 
         // 데이터 행 추가
         sheet.appendRow([
-            nextNum,            // No
-            new Date(),         // 접수일시
-            '설문발송',          // 상담상태 (자동 설정)
-            data.name || '',    // 이름
-            data.phone || '',   // 연락처
-            data.email || '',   // 이메일
-            data.location || '',// 공사위치
-            data.message || '', // 문의내용
-            ''                  // 상담 예약 날짜 (공란)
+            nextNum,            // No. (A열)
+            new Date(),         // 접수일시 (B열)
+            data.name || '',    // 이름 (C열)
+            data.phone || '',   // 연락처 (D열)
+            data.email || '',   // 이메일 (E열)
+            data.location || '',// 현장주소 (F열)
+            data.message || '', // 문의내용 (G열)
+            '설문발송',          // 상담상태 (H열)
+            ''                  // 상담 예약 날짜 (I열)
         ]);
 
         // ✅ 고객에게 자동 이메일 발송
@@ -178,7 +178,7 @@ DESIGN JIG
 
 // 시트 초기 설정 (헤더 + 스타일)
 function setupSheet(sheet) {
-    var headers = ['No.', '접수일시', '상담상태', '이름', '연락처', '이메일', '공사위치', '문의내용', '상담 예약 날짜'];
+    var headers = ['No.', '접수일시', '이름', '연락처', '이메일', '현장주소', '문의내용', '상담상태', '상담 예약 날짜'];
     sheet.appendRow(headers);
 
     var headerRange = sheet.getRange(1, 1, 1, headers.length);
@@ -189,12 +189,12 @@ function setupSheet(sheet) {
 
     sheet.setColumnWidth(1, 50);  // No
     sheet.setColumnWidth(2, 150); // Date
-    sheet.setColumnWidth(3, 100); // Status
-    sheet.setColumnWidth(4, 80);  // Name
-    sheet.setColumnWidth(5, 120); // Phone
-    sheet.setColumnWidth(6, 180); // Email
-    sheet.setColumnWidth(7, 200); // Location
-    sheet.setColumnWidth(8, 250); // Message
+    sheet.setColumnWidth(3, 80);  // Name
+    sheet.setColumnWidth(4, 120); // Phone
+    sheet.setColumnWidth(5, 180); // Email
+    sheet.setColumnWidth(6, 200); // Location
+    sheet.setColumnWidth(7, 250); // Message
+    sheet.setColumnWidth(8, 100); // Status
     sheet.setColumnWidth(9, 120); // Reservation Date
 
     sheet.getRange(1, 1, 1, headers.length).createFilter();
@@ -214,12 +214,12 @@ function doGet(e) {
             return {
                 no: row[0] || index + 1,
                 date: row[1] || '',
-                status: row[2] || '신규문의', // 상담상태
-                name: row[3] || '',
-                phone: row[4] || '',
-                email: row[5] || '',
-                location: row[6] || '',
-                message: row[7] || '',
+                name: row[2] || '',
+                phone: row[3] || '',
+                email: row[4] || '',
+                location: row[5] || '',
+                message: row[6] || '',
+                status: row[7] || '신규문의', // 상담상태
                 note: row[8] || '' // 상담 예약 날짜
             };
         });
