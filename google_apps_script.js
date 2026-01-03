@@ -80,7 +80,7 @@ function doPost(e) {
 
 // 설문 링크 이메일 발송 함수
 function sendSurveyEmail(customerName, customerEmail) {
-    var subject = '[디자인지그] 맞춤 상담 설문 안내';
+    var subject = '[디자인지그] 맞춤 상담을 위해 사전 설문 작성을 부탁드립니다';
 
     var htmlBody = `
 <!DOCTYPE html>
@@ -97,35 +97,37 @@ function sendSurveyEmail(customerName, customerEmail) {
 </head>
 <body>
     <div class="container">
-        <p>안녕하세요, <strong>${customerName || '고객'}님의</strong>님.</p>
-        <p>디자인지그에 문의 주셔서 감사합니다.</p>
+        <p><strong>DESIGN JIG</strong></p>
+        <br>
+        <p>안녕하세요, <strong>${customerName || '고객'}</strong> 님.<br>
+        디자인지그에 문의해 주셔서 감사합니다.</p>
         <br>
         <p>디자인지그는<br>
         공간을 단순히 꾸미는 것이 아니라,<br>
-        그 공간에서 살아갈 사람의 생활 방식과 기준을<br>
+        그 공간에서 살아갈 분의 생활 방식과 기준을<br>
         먼저 이해하는 것에서 설계를 시작합니다.</p>
         <br>
         <p>보다 정확한 상담을 위해<br>
         간단한 사전 설문을 요청드립니다.<br>
-        설문을 통해 공간의 방향과 우선순위를 정리한 후,<br>
-        그에 맞는 상담을 진행하고 있습니다.</p>
-        <br>
-        <p>아래 설문을 작성해 주시면,<br>
-        확인 후 안내드리겠습니다.</p>
+        설문 내용을 바탕으로 공간의 방향과 우선순위를 정리한 후,<br>
+        그에 맞는 상담을 진행해 드리겠습니다.</p>
         <br>
         <p>
-            <a href="${SURVEY_FORM_URL}">▶ 사전 설문 작성하기</a>
+            <a href="${SURVEY_FORM_URL}">▶ 사전 설문 작성하기</a><br>
+            (약 2~3분 소요)
         </p>
         <br>
-        <p>설문은 약 2~3분 정도 소요됩니다.</p>
+        <p>설문 작성 후 확인되는 대로<br>
+        순차적으로 연락드리겠습니다.</p>
         <br>
-        <p>감사합니다.<br>
-        DESIGN JIG 드림</p>
-
+        <p>감사합니다.</p>
+        <br>
+        <p>디자인지그 드림</p>
+        
         <div class="footer">
             <strong style="color: #1a1a1a; font-size: 13px;">DESIGN JIG</strong><br>
-            공간에 기준을 세우는 디자인<br>
-            <span style="font-size: 11px; color: #999;">© Design Jig. All rights reserved.</span>
+            기본이 탄탄해야 아름다움도 오래갑니다.<br>
+            designjig.com
         </div>
     </div>
 </body>
@@ -133,33 +135,36 @@ function sendSurveyEmail(customerName, customerEmail) {
     `;
 
     var plainTextBody = `
-안녕하세요, ${customerName || '고객'}님.
-디자인지그에 문의 주셔서 감사합니다.
+DESIGN JIG
+
+안녕하세요, ${customerName || '고객'} 님.
+디자인지그에 문의해 주셔서 감사합니다.
 
 디자인지그는
 공간을 단순히 꾸미는 것이 아니라,
-그 공간에서 살아갈 사람의 생활 방식과 기준을
+그 공간에서 살아갈 분의 생활 방식과 기준을
 먼저 이해하는 것에서 설계를 시작합니다.
 
 보다 정확한 상담을 위해
 간단한 사전 설문을 요청드립니다.
-설문을 통해 공간의 방향과 우선순위를 정리한 후,
-그에 맞는 상담을 진행하고 있습니다.
+설문 내용을 바탕으로 공간의 방향과 우선순위를 정리한 후,
+그에 맞는 상담을 진행해 드리겠습니다.
 
-아래 설문을 작성해 주시면,
-확인 후 안내드리겠습니다.
+▶ 사전 설문 작성하기
+${SURVEY_FORM_URL}
+(약 2~3분 소요)
 
-▶ 사전 설문 작성하기: ${SURVEY_FORM_URL}
-
-설문은 약 2~3분 정도 소요됩니다.
+설문 작성 후 확인되는 대로
+순차적으로 연락드리겠습니다.
 
 감사합니다.
-DESIGN JIG 드림
+
+디자인지그 드림
 
 ────────────────
 DESIGN JIG
-공간에 기준을 세우는 디자인
-© Design Jig. All rights reserved.
+기본이 탄탄해야 아름다움도 오래갑니다.
+designjig.com
     `;
 
     try {
