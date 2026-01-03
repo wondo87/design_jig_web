@@ -1,25 +1,18 @@
 /**
- * 디자인 지그 웹사이트 - 상담 문의 처리 + 자동 이메일 발송 스크립트
- * 
- * [기능]
- * 1. 고객 문의 접수 → Google Sheets 저장
- * 2. 고객에게 자동으로 설문 링크 이메일 발송 (이름, 연락처, 이메일, 주소, 문의내용 자동 입력)
+ * 디자인 지그 웹사이트 - 상담 문의 처리 + 자동 이메일 발송 + 시트 이동 스크립트 + A/S 만료 알림
  */
 
 // ========== 설정 영역 ==========
-// 설문지 기본 주소 (viewform 이전까지)
 const FORM_BASE_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdcsD1hjKMNezFTaPAZRlKovdRDfCW08cy4VfLHL_LJDcmbVw/viewform';
 
-// 설문지 항목별 ID (자동 입력을 위해 필요)
 const ENTRY_IDS = {
     NAME: '2076163714',
     PHONE: '217138793',
     EMAIL: '916215270',
     ADDRESS: '840428259',
-    MESSAGE: '1360575573' // [추가됨] 문의내용 ID
+    MESSAGE: '1360575573'
 };
 
-// 발신자 이름
 const SENDER_NAME = '디자인지그';
 // ================================
 
@@ -48,7 +41,6 @@ function doPost(e) {
             }
         }
 
-        // 시트에 데이터 추가 (문의내용 포함)
         sheet.appendRow([
             nextNum,
             new Date(),
@@ -56,12 +48,11 @@ function doPost(e) {
             data.phone || '',
             data.email || '',
             data.location || '',
-            data.message || '', // 문의내용이 시트에도 잘 들어가는지 확인
+            data.message || '',
             '설문발송',
             ''
         ]);
 
-        // ✅ 고객 맞춤형 이메일 발송
         if (data.email) {
             sendSurveyEmail(data);
         }
@@ -81,15 +72,13 @@ function doPost(e) {
 function sendSurveyEmail(data) {
     var customerName = data.name || '고객';
 
-    // URL 파라미터 생성 (자동 입력)
-    // viewform?usp=pp_url&entry.ID=VALUE...
     var params = [
         'usp=pp_url',
         'entry.' + ENTRY_IDS.NAME + '=' + encodeURIComponent(customerName),
         'entry.' + ENTRY_IDS.PHONE + '=' + encodeURIComponent(data.phone || ''),
         'entry.' + ENTRY_IDS.EMAIL + '=' + encodeURIComponent(data.email || ''),
         'entry.' + ENTRY_IDS.ADDRESS + '=' + encodeURIComponent(data.location || ''),
-        'entry.' + ENTRY_IDS.MESSAGE + '=' + encodeURIComponent(data.message || '') // [확인필수] 문의내용 자동입력 로직
+        'entry.' + ENTRY_IDS.MESSAGE + '=' + encodeURIComponent(data.message || '')
     ];
 
     var finalSurveyUrl = FORM_BASE_URL + '?' + params.join('&');
@@ -255,10 +244,9 @@ function doGet(e) {
 }
 
 // ==========================================
-// [중요] 트리거 연결용 함수 (이름 변경됨)
+// [중요] 트리거 연결용 함수
 // ==========================================
 function processStatusChange(e) {
-    // 0. 트리거 테스트 시 e가 없을 수 있음 방지
     if (!e) return;
 
     var range = e.range;
@@ -276,17 +264,17 @@ function moveRowToAS(sourceSheet, rowNum) {
     var spreadsheet = sourceSheet.getParent();
     var targetSheet = spreadsheet.getSheetByName(targetSheetName);
 
-    // 타겟 시트가 없을 때만 생성 (헤더 자동 설정)
+    // 타겟 시트가 없을 때만 생성 (헤더: 스크린샷 기준)
     if (!targetSheet) {
         targetSheet = spreadsheet.insertSheet(targetSheetName);
-        var headers = ['NO', '고객명', '연락처', '이메일', '현장주소', '공사 완료일', '보증 기간 (개월)', '12개월차 점검 예정일', '12개월차 점검 상태', '담당자', '비고'];
+        var headers = ['NO', '고객명', '연락처', '이메일', '현장주소', '기본 A/S 상태', '화장실 A/S 상태', '공사 완료일', '# 기본 보증 기간', 'A/S 완료일'];
         var headerRange = targetSheet.getRange(1, 1, 1, headers.length);
         headerRange.setValues([headers]);
         headerRange.setBackground('#4a7c59');
         headerRange.setFontColor('#ffffff');
         headerRange.setFontWeight('bold');
         headerRange.setHorizontalAlignment('center');
-        targetSheet.setColumnWidth(2, 100);
+        targetSheet.setColumnWidth(2, 80);
         targetSheet.setColumnWidth(3, 120);
         targetSheet.setColumnWidth(4, 180);
         targetSheet.setColumnWidth(5, 200);
@@ -295,27 +283,26 @@ function moveRowToAS(sourceSheet, rowNum) {
     // 1. 원본 데이터 가져오기
     var rowValues = sourceSheet.getRange(rowNum, 1, 1, sourceSheet.getLastColumn()).getValues()[0];
 
-    // 데이터 매핑 (인덱스 주의: 0부터 시작)
+    // 데이터 매핑
     var no = rowValues[0];       // No.
     var name = rowValues[2];     // 이름 -> 고객명
     var phone = rowValues[3];    // 연락처 -> 연락처
     var email = rowValues[4];    // 이메일 -> 이메일
     var address = rowValues[5];  // 현장주소 -> 현장주소
 
-    // 2. 타겟 시트용 배열 생성
-    // 순서: NO, 고객명, 연락처, 이메일, 현장주소, 공사 완료일, 보증 기간, 점검 예정일, 점검 상태, 담당자, 비고
+    // 2. 타겟 시트용 배열 생성 (스크린샷 열 순서)
+    // NO, 고객명, 연락처, 이메일, 현장주소, 기본 A/S 상태, 화장실 A/S 상태, 공사 완료일, # 기본 보증 기간, A/S 완료일
     var newRowData = [
         no,
         name,
         phone,
         email,
         address,
-        '',          // 공사 완료일
-        '',          // 보증 기간
-        '',          // 점검 예정일
-        '',          // 점검 상태
-        '',          // 담당자
-        ''           // 비고
+        '',          // 기본 A/S 상태 (공란)
+        '',          // 화장실 A/S 상태 (공란)
+        '',          // 공사 완료일 (공란)
+        '12',        // # 기본 보증 기간 (기본 12개월)
+        ''           // A/S 완료일 (공란 - 수식이나 자동입력 필요시 로직 추가 가능)
     ];
 
     // 3. 이동 및 삭제
@@ -323,4 +310,99 @@ function moveRowToAS(sourceSheet, rowNum) {
     sourceSheet.deleteRow(rowNum);
 
     spreadsheet.toast('고객 정보를 [계약완료고객_A/S] 시트로 이동했습니다.', '이동 완료');
+}
+
+// ==========================================
+// [신규] A/S 만료 안내 메일 자동 발송 함수
+// - 이 함수는 [트리거] -> [시간 기반] -> [일 단위]로 설정해야 함
+// ==========================================
+function sendWarrantyExpirationEmails() {
+    var targetSheetName = '계약완료고객_A/S';
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(targetSheetName);
+
+    if (!sheet) {
+        console.log('[' + targetSheetName + '] 시트를 찾을 수 없습니다.');
+        return;
+    }
+
+    var data = sheet.getDataRange().getValues();
+    // 데이터가 2행부터 시작한다고 가정 (1행은 헤더)
+
+    var today = new Date();
+    today.setHours(0, 0, 0, 0); // 시간 제거 (날짜만 비교)
+
+    // 스크린샷 기준 열 인덱스 (0부터 시작)
+    // 0:NO, 1:고객명, 2:연락처, 3:이메일, 4:현장주소 ... 9:A/S 완료일
+    var NAME_COL = 1;
+    var EMAIL_COL = 3;
+    var DATE_COL = 9;
+
+    // 카운터
+    var sentCount = 0;
+
+    for (var i = 1; i < data.length; i++) { // 헤더 건너뛰고 1부터 시작
+        var row = data[i];
+        var expirationDate = row[DATE_COL];
+        var email = row[EMAIL_COL];
+        var name = row[NAME_COL];
+
+        // 날짜 데이터가 있고, 이메일이 있는 경우만
+        if (expirationDate instanceof Date && email) {
+            expirationDate.setHours(0, 0, 0, 0); // 비교를 위해 시간 초기화
+
+            // 오늘 날짜와 A/S 완료일이 정확히 같으면 발송
+            if (expirationDate.getTime() === today.getTime()) {
+                sendExpirationEmail(email, name);
+                sentCount++;
+                console.log('발송 대상 찾음: ' + name + '님 (' + email + ')');
+            }
+        }
+    }
+
+    console.log('총 ' + sentCount + '건의 A/S 만료 안내 메일을 발송했습니다.');
+}
+
+function sendExpirationEmail(email, name) {
+    var subject = '[디자인지그] A/S 보증 기간 완료 안내';
+    var customerName = name || '고객';
+
+    var body = `DESIGN JIG
+
+안녕하세요, ${customerName} 고객님.
+디자인지그입니다.
+
+고객님 공간의 A/S 보증 기간이 완료되어 안내드립니다.
+
+보증 기간 동안 불편함 없이 잘 사용하고 계셨는지,
+혹시 미처 말씀하지 못하신 부분은 없으셨는지
+한 번 더 여쭙고 싶어 연락드렸습니다.
+
+보증 기간이 종료되더라도
+디자인지그가 시공한 공간에 대한 책임은 계속됩니다.
+
+사용 중 불편하신 점이나 궁금한 사항이 있으시면
+언제든지 편하게 연락 주시기 바랍니다.
+
+기본이 탄탄해야 아름다움도 오래가듯,
+시공 이후의 관계도 오래 이어가겠습니다.
+
+감사합니다.
+
+디자인지그 드림
+
+────────────────
+DESIGN JIG
+기본이 탄탄해야 아름다움도 오래갑니다.
+designjig.com`;
+
+    try {
+        MailApp.sendEmail({
+            to: email,
+            subject: subject,
+            body: body,
+            name: SENDER_NAME
+        });
+    } catch (e) {
+        console.log('메일 발송 에러 (' + email + '): ' + e.toString());
+    }
 }
